@@ -1,4 +1,5 @@
 <?php
+namespace Drupal\music_search\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;

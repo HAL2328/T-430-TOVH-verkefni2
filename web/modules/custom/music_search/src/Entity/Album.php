@@ -18,20 +18,24 @@ use Drupal\Core\Entity\EntityChangedTrait;
  *   entity_keys = {
  *     "id" = "nid",
  *     "label" = "title",
+ *      "uuid" = "uuid",
  *   },
- *   forms = {
- *   "default" = "Drupal\music_search\Form\AlbumEntityForm",
- *   "add" = "Drupal\music_search\Form\AlbumEntityForm",
- *   "edit" = "Drupal\music_search\Form\AlbumEntityForm",
- *   "delete" = "Drupal\core\Entity\EntityDeleteForm",
+ *   handlers = {
+ *    "form" = {
+ *      "default" = "Drupal\music_search\Form\AlbumEntityForm",
+ *      "add" = "Drupal\music_search\Form\AlbumEntityForm",
+ *      "edit" = "Drupal\music_search\Form\AlbumEntityForm",
+ *      "delete" = "Drupal\Core\Entity\EntityDeleteForm",
+ *      },
  *   },
  *   links = {
  *     "canonical" = "/album/{album}",
+ *     "add-form" = "/album/add",
  *     "edit-form" = "/album/{album}/edit",
  *     "delete-form" = "/album/{album}/delete",
  *   },
  *   fieldable = TRUE,
- *   entity_type = "album",
+ *   entity_type = "node",
  *   bundle_entity_type = "node",
  *   bundle_label = @Translation("Album Content Type"),
  *   bundle_key = "type",
@@ -171,6 +175,11 @@ class Album extends ContentEntityBase implements AlbumInterface {
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array
   {
     $fields = parent::baseFieldDefinitions($entity_type);
+
+    $fields['created'] = BaseFieldDefinition::create('created')
+      ->setLabel(t('Created'))
+      ->setDescription(t('The time the entity was created.'))
+      ->setRevisionable(TRUE);
 
     $fields['title'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Album Title'))
