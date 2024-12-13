@@ -1,5 +1,7 @@
 <?php
 
+namespace Drupal\music_search\Form;
+
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Messenger\MessengerInterface;

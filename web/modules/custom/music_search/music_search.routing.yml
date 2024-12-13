@@ -30,3 +30,44 @@ music_search.settings:
     _title: 'Music Search Settings'
   requirements:
     _permission: 'administer site configuration'
+
+music_search.content_entity_form:
+  path: '/music-search/create-entity'
+  defaults:
+    _form: '\Drupal\music_search\Form\ContentEntityForm'
+    _title: 'Create Content Entity'
+  requirements:
+    _permission: 'access content'
+
+entity.album.add_form:
+  path: '/album/add'
+  defaults:
+    _entity_form: 'album.add'
+    _title: 'Add Album'
+  requirements:
+    _permission: 'administer album entities'
+
+entity.artist.add_form:
+  path: '/artist/add'
+  defaults:
+    _entity_form: 'artist.add'
+    _title: 'Add Artist'
+  requirements:
+    _permission: 'administer artist entities'
+
+entity.song.add_form:
+  path: '/song/add'
+  defaults:
+    _entity_form: 'song.add'
+    _title: 'Add Song'
+  requirements:
+    _permission: 'administer song entities'
+
+entity.field_selector_form:
+  path: '/entity/field-selector-submit'
+  defaults:
+    _controller: '\Drupal\music_search\Controller\FieldSelectorController::handleFormSubmission'
+    _title: 'Field Selector Submit'
+  methods: [POST]
+  requirements:
+    _permission: 'access content'

@@ -5,3 +5,5 @@ music_search.admin:
   route_name: music_search.page
   weight: 10
   menu_name: admin
+  workflows: 'music_search_admin'
+

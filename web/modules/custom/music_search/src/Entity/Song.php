@@ -18,20 +18,24 @@ use Drupal\Core\Entity\EntityChangedTrait;
  *   entity_keys = {
  *     "id" = "nid",
  *     "label" = "title",
+ *     "uuid" = "uuid",
  *   },
- *   forms = {
+ *   handlers = {
+ *    "form" = {
  *     "default" = "Drupal\music_search\Form\SongEntityForm",
  *     "add" = "Drupal\music_search\Form\SongEntityForm",
  *     "edit" = "Drupal\music_search\Form\SongEntityForm",
  *     "delete" = "Drupal\core\Entity\EntityDeleteForm",
+ *     },
  *   },
  *   links = {
  *      "canonical" = "/song/{song}",
+ *      "add-form" = "/song/add",
  *      "edit-form" = "/song/{song}/edit",
  *      "delete-form" = "/song/{song}/delete",
  *   },
  *   fieldable = TRUE,
- *   entity_type = "song",
+ *   entity_type = "node",
  *   bundle_entity_type = "node",
  *   bundle_label = @Translation("Song Content Type"),
  *   bundle_key = "type"

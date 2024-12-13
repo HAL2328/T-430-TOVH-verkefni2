@@ -20,21 +20,27 @@ use Drupal\music_search\Entity;
  *   entity_keys = {
  *     "id" = "nid",
  *     "label" = "title",
+ *     "uuid" = "uuid",
  *   },
- *   forms = {
- *    "default" = "Drupal\music_search\Form\ArtistEntityForm",
- *    "add" = "Drupal\music_search\Form\ArtistEntityForm",
- *    "edit" = "Drupal\music_search\Form\ArtistEntityForm",
- *    "delete" = "Drupal\core\Entity\EntityDeleteForm",
+ *   handlers = {
+ *    "form" = {
+ *      "default" = "Drupal\music_search\Form\ArtistEntityForm",
+ *      "add" = "Drupal\music_search\Form\ArtistEntityForm",
+ *      "edit" = "Drupal\music_search\Form\ArtistEntityForm",
+ *       "delete" = "Drupal\core\Entity\EntityDeleteForm",
+ *    },
  *   },
  *   links = {
  *      "canonical" = "/artist/{artist}",
+ *      "add-form" = "/artist/add",
  *      "edit-form" = "/artist/{artist}/edit",
  *      "delete-form" = "/artist/{artist}/delete",
  *   },
  *   fieldable = TRUE,
- *   entity_type = "artist",
- *   bundle_entity_type = "node"
+ *   entity_type = "node",
+ *   bundle_entity_type = "node",
+ *   bundle_label = @Translation("Artist Content Type"),
+ *   bundle_key = "type",
  * )
  */
 

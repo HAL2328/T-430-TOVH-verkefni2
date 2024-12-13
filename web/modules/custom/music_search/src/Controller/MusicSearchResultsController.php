@@ -26,6 +26,8 @@ class MusicSearchResultsController extends ControllerBase {
    */
   protected MusicSearchService $musicSearchService;
 
+
+
   /**
    * Constructs a MusicSearchResultsController object.
    *
@@ -33,6 +35,7 @@ class MusicSearchResultsController extends ControllerBase {
    *   The session service.
    * @param MusicSearchService $musicSearchService
    *   The music search service.
+   *
    */
   public function __construct(SessionInterface $session, MusicSearchService $musicSearchService) {
     $this->session = $session;
@@ -45,7 +48,7 @@ class MusicSearchResultsController extends ControllerBase {
   public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('session'),
-      $container->get('music_search.service')
+      $container->get('music_search.service'),
     );
   }
 
@@ -110,25 +113,40 @@ class MusicSearchResultsController extends ControllerBase {
         '#markup' => $this->t('No details found for this item.'),
       ];
     }
-    $entity_type = $details['spotify']['entity_type'] ?? 'album';
+    $type = $details['spotify']['type'] ?? 'album';
     \Drupal::logger('music_search')->notice('Details received: <pre>@details</pre>', ['@details' => print_r($details, TRUE)]);
-    // Render the details on a new page.
-    // Dummy Discogs data for testing.
 
-    $details['discogs'] = [
-      'name' => 'Discogs Artist Name',
-      'genres' => ['Electro', 'Experimental'],
-      'profile' => 'A famous artist known for blending genres like pop and electronic music.',
-      'image_url' => 'https://discogs.com/artist-image.jpg',
+    $testurl = 'testibestie';
+    // Dummy data remember to delete this..
+    $discogs_album = [
+      'type' => 'album',
+      'image_url' => $testurl,
+      'tracks' => ['Track 1', 'Track 2', 'Track 3', 'Track 4'],
+      'label' => 'Example Music Label',
+      'genres' => ['Rock, Alternative'],
+      'release_date' => '2023-01-20',
     ];
+    $discogs_artist = [
+      'type' => 'artist',
+      'name' => 'John Doe',
+      'image' => $testurl,
+      'url' => $testurl,
+    ];
+    $discogs_song = [
+      'type' => 'song',
+      'spotify_id' => '1234567890abcdef',
+      'duration' => '122321',
+      'name' => 'Example Song Title',
+    ];
+    $details['discogs'] = $discogs_album;
 
     return [
       '#theme' => 'entity_field_selector',
-      '#entity_type' => $entity_type,
+      '#entity_type' => $type,
       '#details' => $details,
       '#cache' => [
         'max-age' => 0,
-        ],
+      ],
       '#attached' => [
         'library' => [
           'music_search/entity_field_selector_css',
@@ -144,8 +162,32 @@ class MusicSearchResultsController extends ControllerBase {
   /*
    * Helper function to save values temporarily in session.
    */
-  public function setSessionValue($key, $value) {
-    $this->session->set($key, $value);
+  public function setSessionValue(): array
+  {
+    $request = \Drupal::request();
+    $selectedFields = $request->get('fields');
+
+    if (!empty($selectedFields)) {
+      // Store the `fields` array into the session under `selected_fields` key.
+      $this->session->set('selected_fields', $selectedFields);
+
+      // Optional: Log the operation for debugging purposes.
+      \Drupal::logger('music_search')->notice('Selected fields stored in session: @fields', [
+        '@fields' => print_r($selectedFields, TRUE),
+      ]);
+    }
+
+    // If no fields were selected, inform the user.
+    if (empty($selectedFields)) {
+      return [
+        '#markup' => $this->t('No fields were selected.'),
+      ];
+    }
+
+    // Render a success message or redirect.
+    return [
+      '#markup' => $this->t('The selected fields were successfully stored in the session.'),
+    ];
   }
 }
 
