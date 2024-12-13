@@ -6,6 +6,8 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\Entity\Node;
+
 /**
  * Implements hook_help().
  */
@@ -43,5 +45,16 @@ function music_search_theme() {
       ],
     ],
   ];
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_create() for 'node'.
+ */
+function music_search_node_create(Node $node) {
+  if ($node->getType() == 'artist') {
+    if (\Drupal::routeMatch()->getRouteName() == 'node.add') {
+      $node->setTitle('Steely Dan fans anonymous');
+    }
+  }
 }
 

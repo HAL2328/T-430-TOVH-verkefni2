@@ -79,18 +79,7 @@ class MusicSearchResultsController extends ControllerBase {
       $params['term']
     );
 
-    return [
-      '#theme' => 'music_search_results',
-      '#results' => $results,
-      '#cache' => [
-        'max-age' => 0,
-      ],
-      '#attached' => [
-        'library' => [
-          'music_search/music_search_results_css',
-        ],
-      ],
-    ];
+    return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\MusicSearchSelectionForm::class, $results);
   }
 
   /**
