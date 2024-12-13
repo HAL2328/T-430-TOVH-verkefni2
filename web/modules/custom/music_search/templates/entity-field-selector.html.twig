@@ -5,16 +5,7 @@
     <strong>{{ 'Entity Type'|t }}:</strong> {{ entity_type|capitalize }}
   </p>
 
-  <form method="post" action="
-        {% if entity_type == 'album' %}
-          {{ path('entity.album.add_form') }}
-        {% elseif entity_type == 'artist' %}
-          {{ path('entity.artist.add_form') }}
-        {% elseif entity_type == 'song' %}
-          {{ path('entity.song.add_form') }}
-        {% endif %}
-      " class="entity-field-selector__form">
-
+  <form method="post" action="{{ path('entity.field_selector_form', {'entity_type': entity_type}) }}" class="entity-field-selector__form">
     {% if details is defined %}
     {% if entity_type == 'artist' %}
     <h3>{{ 'Artist'|t }}</h3>
@@ -36,13 +27,13 @@
           <td>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[name]" value="spotify" checked />
+                <input type="radio" class="form-check-input" name="fields[name]" value="{{ details.spotify.name }}" checked />
                 {{ 'Spotify'|t }}
               </label>
             </div>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[name]" value="discogs" />
+                <input type="radio" class="form-check-input" name="fields[name]" value="{{ details.discogs.artist.name }}" />
                 {{ 'Discogs'|t }}
               </label>
             </div>
@@ -61,13 +52,13 @@
           <td>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[image]" value="spotify" checked />
+                <input type="radio" class="form-check-input" name="fields[image]" value="{{ details.spotify.image }}" checked />
                 {{ 'Spotify'|t }}
               </label>
             </div>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[image]" value="discogs" />
+                <input type="radio" class="form-check-input" name="fields[image]" value="{{ details.discogs.artist.image }}" />
                 {{ 'Discogs'|t }}
               </label>
             </div>
@@ -103,13 +94,13 @@
           <td>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[name]" value="spotify" checked />
+                <input type="radio" class="form-check-input" name="fields[name]" value="{{ details.spotify.name }}" checked />
                 {{ 'Spotify'|t }}
               </label>
             </div>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[name]" value="discogs" />
+                <input type="radio" class="form-check-input" name="fields[name]" value="{{ details.discogs.song.name }}" />
                 {{ 'Discogs'|t }}
               </label>
             </div>
@@ -128,13 +119,13 @@
           <td>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[duration]" value="spotify" checked />
+                <input type="radio" class="form-check-input" name="fields[duration]" value="{{ details.spotify.duration }}" checked />
                 {{ 'Spotify'|t }}
               </label>
             </div>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[duration]" value="discogs" />
+                <input type="radio" class="form-check-input" name="fields[duration]" value="{{ details.discogs.song.duration }}" />
                 {{ 'Discogs'|t }}
               </label>
             </div>
@@ -164,19 +155,44 @@
         </thead>
         <tbody>
         <tr>
+          <td>{{ 'Title'|t }}</td>
+          <td>{{ details.spotify.name|default('N/A') }}</td>
+          <td>{{ details.discogs.album.name|default('N/A') }}</td>
+          <td>
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="fields[name]" value="{{ details.spotify.name }}" checked />
+                {{ 'Spotify'|t }}
+              </label>
+            </div>
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="fields[name]" value="{{ details.discogs.album.name }}" />
+                {{ 'Discogs'|t }}
+              </label>
+            </div>
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="fields[name]" value="" />
+                {{ 'None'|t }}
+              </label>
+            </div>
+          </td>
+        </tr>
+        <tr>
           <td>{{ 'Label'|t }}</td>
           <td>{{ details.spotify.label|default('N/A') }}</td>
           <td>{{ details.discogs.album.label|default('N/A') }}</td>
           <td>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[label]" value="spotify" checked />
+                <input type="radio" class="form-check-input" name="fields[label]" value="{{ details.spotify.label }}" checked />
                 {{ 'Spotify'|t }}
               </label>
             </div>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[label]" value="discogs" />
+                <input type="radio" class="form-check-input" name="fields[label]" value="{{ details.discogs.album.label }}" />
                 {{ 'Discogs'|t }}
               </label>
             </div>
@@ -195,14 +211,20 @@
           <td>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[image]" value="spotify" checked />
+                <input type="radio" class="form-check-input" name="fields[image]" value="{{ details.spotify.image_url }}" checked />
                 {{ 'Spotify'|t }}
               </label>
             </div>
             <div class="form-check">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="fields[image]" value="discogs" />
+                <input type="radio" class="form-check-input" name="fields[image]" value="{{  details.discogs.album.image_url }}" />
                 {{ 'Discogs'|t }}
+              </label>
+            </div>
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="fields[image]" value="" />
+                {{ 'None'|t }}
               </label>
             </div>
             </td>

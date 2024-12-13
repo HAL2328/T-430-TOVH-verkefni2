@@ -62,3 +62,12 @@ entity.song.add_form:
     _title: 'Add Song'
   requirements:
     _permission: 'administer song entities'
+
+entity.field_selector_form:
+  path: '/entity/field-selector-submit'
+  defaults:
+    _controller: '\Drupal\music_search\Controller\FieldSelectorController::handleFormSubmission'
+    _title: 'Field Selector Submit'
+  methods: [POST]
+  requirements:
+    _permission: 'access content'

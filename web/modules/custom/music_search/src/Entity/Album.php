@@ -181,6 +181,11 @@ class Album extends ContentEntityBase implements AlbumInterface {
       ->setDescription(t('The time the entity was created.'))
       ->setRevisionable(TRUE);
 
+    $fields['changed'] = BaseFieldDefinition::create('changed')
+      ->setLabel(t('Changed'))
+      ->setDescription(t('The time the entity was last edited.'))
+      ->setRevisionable(TRUE);
+
     $fields['title'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Album Title'))
       ->setRequired(TRUE);

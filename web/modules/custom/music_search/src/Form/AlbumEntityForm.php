@@ -9,7 +9,8 @@ class AlbumEntityForm extends ContentEntityForm {
 
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form = parent::buildForm($form, $form_state);
-
+    $session = \Drupal::request()->getSession();
+    $selected_fields = $session->get('selected_fields', []);
     // Add input fields for Album
     $form['album'] = [
       '#type' => 'fieldset',
@@ -18,6 +19,7 @@ class AlbumEntityForm extends ContentEntityForm {
     $form['album']['name'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Album Title'),
+      '#default_value' => $selected_fields['name'] ?? '',
       '#required' => TRUE,
       '#parents' => ['album_title'],
     ];
@@ -30,14 +32,14 @@ class AlbumEntityForm extends ContentEntityForm {
     $form['album']['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label (Publisher)'),
-      '#default_value' => '',
+      '#default_value' => $selected_fields['label'] ?? '',
       '#parents' => ['album_label'],
     ];
     $form['album']['genres'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Genres'),
       '#description' => $this->t('Comma-separated list of genres.'),
-      '#default_value' => '',
+      '#default_value' => $selected_fields['genres'] ?? '',
       '#parents' => ['album_genres'],
     ];
     $form['album']['release_date'] = [
@@ -57,25 +59,24 @@ class AlbumEntityForm extends ContentEntityForm {
     $album = $this->getEntity();
 
 
-    $album_type = $form_state->getValue('album_title');
-    $album_image_url = $form_state->getValue('album_image_url');
-    $album_label = $form_state->getValue('album_label');
-    $album_genres = $form_state->getValue('album_genres');
-    $album_release_date = $form_state->getValue('album_release_date');
+    $album->setTitle($form_state->getValue('name'));
+    $album->set('image_url', $form_state->getValue('image_url'));
+    $album->set('label', $form_state->getValue('label'));
+    $album->set('genres', $form_state->getValue('genres'));
+    $album->set('release_date', $form_state->getValue('release_date'));
 
-    // Save the entity
-    $status = parent::submitForm($form, $form_state);
-
-    // Optional logging for debugging (you can remove or keep this)
-    \Drupal::logger('music_search')->info('The album "@type" has been saved.', [
-      '@type' => $album_type,
+    // Save the album entity.
+    $album->save();
+    \Drupal::logger('music_search')->info('The album "@title" has been saved.', [
+      '@title' => $album->label(),
     ]);
 
+
+
     // Redirect after saving
-    if ($album) {
+    if ($album->id()) {
       $form_state->setRedirectUrl($album->toUrl('canonical'));
-    }
-    else {
+    } else {
       $form_state->setRedirect('<front>');
     }
   }
