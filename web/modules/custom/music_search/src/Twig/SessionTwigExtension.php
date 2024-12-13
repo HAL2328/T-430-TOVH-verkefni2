@@ -7,7 +7,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class SessionTwigExtension extends AbstractExtension {
-  protected $sessionController;
+  protected MusicSearchResultsController $sessionController;
 
   public function __construct(MusicSearchResultsController $sessionController) {
     $this->sessionController = $sessionController;

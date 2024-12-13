@@ -79,18 +79,7 @@ class MusicSearchResultsController extends ControllerBase {
       $params['term']
     );
 
-    return [
-      '#theme' => 'music_search_results',
-      '#results' => $results,
-      '#cache' => [
-        'max-age' => 0,
-      ],
-      '#attached' => [
-        'library' => [
-          'music_search/music_search_results_css',
-        ],
-      ],
-    ];
+    return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\MusicSearchSelectionForm::class, $results);
   }
 
   /**
@@ -120,10 +109,9 @@ class MusicSearchResultsController extends ControllerBase {
     // Dummy data remember to delete this..
     $discogs_album = [
       'type' => 'album',
+      'name' => 'Example Album Title',
       'image_url' => $testurl,
-      'tracks' => ['Track 1', 'Track 2', 'Track 3', 'Track 4'],
       'label' => 'Example Music Label',
-      'genres' => ['Rock, Alternative'],
       'release_date' => '2023-01-20',
     ];
     $discogs_artist = [

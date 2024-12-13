@@ -4,6 +4,8 @@ namespace Drupal\music_search\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\music_search\Entity\AlbumInterface;
+
 
 class AlbumEntityForm extends ContentEntityForm {
 
@@ -23,31 +25,17 @@ class AlbumEntityForm extends ContentEntityForm {
       '#required' => TRUE,
       '#parents' => ['album_title'],
     ];
-    $form['album']['album_cover'] = [
-      '#type' => 'url',
-      '#title' => $this->t('Cover Image URL'),
-      '#default_value' => '',
-      '#parents' => ['album_image_url'],
-    ];
     $form['album']['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label (Publisher)'),
       '#default_value' => $selected_fields['label'] ?? '',
       '#parents' => ['album_label'],
     ];
-    $form['album']['genres'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Genres'),
-      '#description' => $this->t('Comma-separated list of genres.'),
-      '#default_value' => $selected_fields['genres'] ?? '',
-      '#parents' => ['album_genres'],
-    ];
     $form['album']['release_date'] = [
       '#type' => 'date',
       '#title' => $this->t('Release Date'),
-      '#default_value' => '',
+      '#default_value' => $selected_fields['release_date'] ?? '',
       '#date_date_format' => 'd-m-Y',
-
       '#parents' => ['album_release_date'],
     ];
 
@@ -58,12 +46,10 @@ class AlbumEntityForm extends ContentEntityForm {
 
     $album = $this->getEntity();
 
-
+    /** @var AlbumInterface $album */
     $album->setTitle($form_state->getValue('name'));
-    $album->set('image_url', $form_state->getValue('image_url'));
-    $album->set('label', $form_state->getValue('label'));
-    $album->set('genres', $form_state->getValue('genres'));
-    $album->set('release_date', $form_state->getValue('release_date'));
+    $album->setAlbumPublisher($form_state->getValue('label'));
+    $album->setPublicationYear($form_state->getValue('release_date'));
 
     // Save the album entity.
     $album->save();
