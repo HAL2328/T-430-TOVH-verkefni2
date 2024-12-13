@@ -1,0 +1,20 @@
+services:
+  music_search.discogs_lookup.discogs_service:
+    class: Drupal\discogs_lookup\DiscogsLookupService
+    arguments:
+    - '@http_client'
+    - '@config.factory'
+    - '@music_search.discogs_lookup.result_parser'
+    - '@music_search.discogs_lookup.discogs_uri_extractor'
+    tags:
+      - { name: music_search_provider, provider: 'discogs' }
+
+  music_search.discogs_lookup.token_service:
+    class: Drupal\discogs_lookup\discogsTokenService
+    arguments: [ '@http_client' ]
+
+  music_search.discogs_lookup.result_parser:
+    class: Drupal\discogs_lookup\discogsResultParser
+
+  music_search.discogs_lookup.discogs_uri_extractor:
+    class: Drupal\discogs_lookup\discogsUriExtractor

@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Contains theme hooks for the Music Search module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function music_search_theme() {
+  return [
+    'music_search_results' => [
+      'variables' => [
+        'results' => [],
+      ],
+      'template' => 'music-search-results',
+    ],
+    'music_search_item_detail' => [
+      'variables' => [
+        'details' => [],
+      ],
+      'template' => 'music-search-item-detail',
+    ],
+  ];
+}

@@ -1,0 +1,17 @@
+{
+    "name": "drupal/music_search",
+    "description": "searching music like a boss",
+    "type": "drupal-module",
+    "autoload": {
+        "psr-4": {
+            "Drupal\\music_search\\": "src/"
+        }
+    },
+    "extra": {
+        "drush": {
+            "services": {
+                "drush.services.yml": "^10"
+            }
+        }
+    }
+}

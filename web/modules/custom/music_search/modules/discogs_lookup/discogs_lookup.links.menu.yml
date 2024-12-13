@@ -1,0 +1,6 @@
+Discogs_lookup.settings:
+  title: 'Discogs Lookup Settings'
+  description: 'Configure API key for Discogs Lookup module.'
+  parent: system.admin_config_services
+  route_name: discogs_lookup.settings
+  weight: 10

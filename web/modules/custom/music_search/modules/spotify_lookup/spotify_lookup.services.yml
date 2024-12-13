@@ -1,0 +1,20 @@
+services:
+  music_search.spotify_lookup.spotify_service:
+    class: Drupal\spotify_lookup\SpotifyLookupService
+    arguments:
+    - '@http_client'
+    - '@config.factory'
+    - '@music_search.spotify_lookup.result_parser'
+    - '@music_search.spotify_lookup.spotify_uri_extractor'
+    tags:
+      - { name: music_search_provider, provider: 'spotify' }
+
+  music_search.spotify_lookup.token_service:
+    class: Drupal\spotify_lookup\SpotifyTokenService
+    arguments: [ '@http_client' ]
+
+  music_search.spotify_lookup.result_parser:
+    class: Drupal\spotify_lookup\SpotifyResultParser
+
+  music_search.spotify_lookup.spotify_uri_extractor:
+    class: Drupal\spotify_lookup\SpotifyUriExtractor

@@ -1,0 +1,46 @@
+{% if details.type == 'artist' %}
+  <div class="music-item artist-detail">
+    <h1>{{ details.name }}</h1>
+    {% if details.image %}
+      <img src="{{ details.image }}" alt="{{ details.name }}" width="200" height="200">
+    {% endif %}
+    {% if details.url %}
+      <p><a href="{{ details.url }}" target="_blank">View on Spotify</a></p>
+    {% endif %}
+  </div>
+{% elseif details.type == 'song' %}
+  <div class="music-item track-detail">
+    <h1>Track Details</h1>
+    <p>This is a track. Additional details can be displayed once you have them.</p>
+  </div>
+{% elseif details.type == 'album' %}
+  <div class="music-item album-detail">
+    <h1>{{ details.name }}</h1>
+    {% if details.image %}
+      <img src="{{ details.image }}" alt="{{ details.name }}" width="200" height="200">
+    {% endif %}
+    {% if details.release_date %}
+      <p><strong>Release Date:</strong> {{ details.release_date }}</p>
+    {% endif %}
+    {% if details.label %}
+      <p><strong>Label:</strong> {{ details.label }}</p>
+    {% endif %}
+    {% if details.url %}
+      <p><a href="{{ details.url }}" target="_blank">View on Spotify</a></p>
+    {% endif %}
+    {% if details.genres is defined and details.genres is iterable %}
+      <p><strong>Genres:</strong> {{ details.genres|join(', ') }}</p>
+    {% endif %}
+    {% if details.artists is defined and details.artists is iterable %}
+      <p><strong>Artists:</strong>
+        {% for artist in details.artists %}
+          {{ artist.name }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+      </p>
+    {% endif %}
+  </div>
+{% else %}
+  <div class="music-item">
+    <p>No details available for this type.</p>
+  </div>
+{% endif %}

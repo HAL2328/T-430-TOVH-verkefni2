@@ -1,0 +1,32 @@
+music_search.page:
+  path: '/music-search/search'
+  defaults:
+    _controller: 'Drupal\music_search\Controller\MusicSearchController::musicSearchPage'
+    _title: 'Music Search'
+  requirements:
+    _permission: 'access content'
+
+music_search.results:
+  path: '/music-search/results'
+  defaults:
+    _controller: 'Drupal\music_search\Controller\MusicSearchResultsController::resultsPage'
+    _title: 'Search Results'
+  requirements:
+    _permission: 'access content'
+
+music_search.detail_query:
+  path: '/music-search/detail-query'
+  defaults:
+    _controller: 'Drupal\music_search\Controller\MusicSearchResultsController::detailQuery'
+    _title: 'Detail Query'
+  requirements:
+    _permission: 'access content'
+
+
+music_search.settings:
+  path: '/admin/config/music-search/settings'
+  defaults:
+    _form: '\Drupal\music_search\Form\MusicSearchSettingsForm'
+    _title: 'Music Search Settings'
+  requirements:
+    _permission: 'administer site configuration'

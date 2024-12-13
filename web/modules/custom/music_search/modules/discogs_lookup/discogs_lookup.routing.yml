@@ -1,0 +1,7 @@
+Discogs_lookup.settings:
+  path: '/admin/config/music-search/Discogs'
+  defaults:
+    _form: '\Drupal\Discogs_lookup\Form\DiscogsSettingsForm'
+    _title: 'Discogs Lookup Settings'
+  requirements:
+    _permission: 'administer site configuration'

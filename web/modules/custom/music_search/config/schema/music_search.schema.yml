@@ -1,0 +1,18 @@
+module: music_search
+name: 'Music Search'
+type: module
+
+config:
+  music_search.settings:
+    type: config_object
+    label: 'Music Search settings'
+    mapping:
+      search_api_key:
+        type: string
+        label: 'Search API Key'
+      search_endpoint:
+        type: string
+        label: 'Search Endpoint'
+      max_results:
+        type: integer
+        label: 'Maximum Results'

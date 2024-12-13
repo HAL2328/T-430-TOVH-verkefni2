@@ -1,0 +1,6 @@
+name: 'Spotify Lookup'
+description: 'A custom module for looking up spotify music.'
+type: module
+core_version_requirement: ^10
+dependencies:
+  - music_search

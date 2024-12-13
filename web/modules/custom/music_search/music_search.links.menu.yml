@@ -1,0 +1,7 @@
+music_search.admin:
+  title: 'Music Search'
+  description: 'Search for music entities using Discogs or Spotify.'
+  parent: system.admin_content
+  route_name: music_search.page
+  weight: 10
+  menu_name: admin

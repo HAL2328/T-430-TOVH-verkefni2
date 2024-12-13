@@ -1,0 +1,43 @@
+<div class="music-search-results">
+  {% if results %}
+    {% for provider, items in results %}
+    <h3>{{ provider|capitalize }}</h3>
+    <ul>
+      {% for item in items %}
+        <li>
+          <input type="radio" name="selected_item" id="{{ item.uri }}"
+                 data-provider="{{ provider }}"
+                 data-type="{{ item.type }}"
+                 data-uri="{{ item.uri }}">
+          <label for="{{ item.uri }}">
+            {% if item.image %}
+              <img src="{{ item.image }}" alt="{{ item.name }}" width="50" height="50">
+            {% endif %}
+            <strong>{{ item.name }}</strong> ({{ item.type }})
+            <a href="{{ item.link }}" target="_blank">View on Spotify</a>
+          </label>
+        </li>
+      {% endfor %}
+    </ul>
+    {% endfor %}
+
+    <form method="get" action="{{ path('music_search.detail_query') }}">
+      <input type="hidden" name="provider" id="selected_provider">
+      <input type="hidden" name="type" id="selected_type">
+      <input type="hidden" name="uri" id="selected_uri">
+      <button type="submit">{{ 'Get Details'|t }}</button>
+    </form>
+
+    <script>
+      document.querySelectorAll('input[name="selected_item"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+          document.getElementById('selected_provider').value = this.dataset.provider;
+          document.getElementById('selected_type').value = this.dataset.type;
+          document.getElementById('selected_uri').value = this.dataset.uri;
+        });
+      });
+    </script>
+  {% else %}
+    <p>{{ 'No results found.'|t }}</p>
+  {% endif %}
+</div>
