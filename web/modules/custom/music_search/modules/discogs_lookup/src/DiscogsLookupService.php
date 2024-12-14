@@ -17,10 +17,10 @@ class DiscogsLookupService
 
   public function __construct(string $consumerKey, string $consumerSecret, RequestStack $requestStack, SessionInterface $session)
   {
-    $this->server = new Discogs([ // Use the Discogs specific server
+    $this->server = new Discogs([
       'identifier' => $consumerKey,
       'secret' => $consumerSecret,
-      'callback_uri' => 'https://drupalfy.ddev.site:8443/discogs/callback', // Important!
+      'callback_uri' => 'https://drupalfy.ddev.site:8443/discogs/callback',
     ]);
 
     $this->client = new Client([
