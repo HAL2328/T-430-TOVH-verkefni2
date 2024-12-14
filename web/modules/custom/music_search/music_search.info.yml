@@ -7,3 +7,4 @@ dependencies:
   - drupal:views
   - drupal:search
   - spotify_lookup:spotify_lookup
+  - discogs_lookup:discogs_lookup

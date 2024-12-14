@@ -7,6 +7,5 @@ services:
     tags:
       - { name: music_search_provider, provider: 'discogs' }
 
-
-
-
+  music_search.discogs_lookup.result_parser:
+    class: Drupal\discogs_lookup\DiscogsResultParser

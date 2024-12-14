@@ -1,95 +1,158 @@
 <?php
 
-namespace App\Service;
+namespace Drupal\discogs_lookup;
 
-use GuzzleHttp\Client;
-use League\OAuth1\Client\Credentials\TokenCredentials;
-use League\OAuth1\Client\Server\Discogs; // Use the Discogs specific server
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Drupal\music_search\SearchServiceInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 
-class DiscogsLookupService
+
+/**
+ * Service to interact with Discogs's API.
+ */
+class DiscogsLookupService implements SearchServiceInterface
 {
-  private $client;
-  private $server;
-  private $session;
-  private $requestStack;
 
-  public function __construct(string $consumerKey, string $consumerSecret, RequestStack $requestStack, SessionInterface $session)
+  /**
+   * The HTTP client.
+   *
+   * @var ClientInterface
+   */
+  protected ClientInterface $httpClient;
+
+  /**
+   * The configuration factory.
+   *
+   * @var ConfigFactoryInterface
+   */
+  protected ConfigFactoryInterface $configFactory;
+
+  /**
+   * The Discogs result parser.
+   *
+   * @var DiscogsResultParser
+   */
+  protected DiscogsResultParser $resultParser;
+
+  /**
+   * Constructs a DiscogsLookupService object.
+   *
+   * @param ClientInterface $httpClient
+   *   The HTTP client.
+   * @param ConfigFactoryInterface $configFactory
+   *   The configuration factory.
+   * @param DiscogsResultParser $resultParser
+   *   The result parser service.
+   */
+  public function __construct(ClientInterface $httpClient, ConfigFactoryInterface $configFactory, DiscogsResultParser $resultParser)
   {
-    $this->server = new Discogs([
-      'identifier' => $consumerKey,
-      'secret' => $consumerSecret,
-      'callback_uri' => 'https://drupalfy.ddev.site:8443/discogs/callback',
-    ]);
-
-    $this->client = new Client([
-      'base_uri' => 'https://api.discogs.com/',
-    ]);
-    $this->requestStack = $requestStack;
-    $this->session = $session;
+    $this->httpClient = $httpClient;
+    $this->configFactory = $configFactory;
+    $this->resultParser = $resultParser;
   }
 
-  public function getAuthorizationUrl()
+  /**
+   * {@inheritdoc}
+   */
+  public function search(string $type, string $term): array
   {
-    $temporaryCredentials = $this->server->getTemporaryCredentials();
+    // Map 'song' to 'track'.
+    $discogsType = $type === 'song' ? 'track' : $type;
 
-    // Store the temporary credentials in the session
-    $this->session->set('discogs_temp_credentials', serialize($temporaryCredentials));
+    // Get the stored API token.
+    $config = $this->configFactory->get('discogs_lookup.settings');
+    $consumerKey = $config->get('consumer_key');
+    $consumerSecret = $config->get('consumer_secret');
 
-    return $this->server->getAuthorizationUrl($temporaryCredentials);
-  }
+    \Drupal::logger('discogs_lookup')->debug('Consumer Key: @key, Consumer Secret: @secret', [
+      '@key' => $consumerKey,
+      '@secret' => $consumerSecret,
+    ]);
 
-  public function handleCallback()
-  {
-    $request = $this->requestStack->getCurrentRequest();
-
-    if ($request->query->has('oauth_verifier')) {
-      $oauthVerifier = $request->query->get('oauth_verifier');
-      $tempCredentials = unserialize($this->session->get('discogs_temp_credentials'));
-      $this->session->remove('discogs_temp_credentials');
-
-
-      try {
-        $tokenCredentials = $this->server->getTokenCredentials(
-          $tempCredentials,
-          $oauthVerifier
-        );
-        $this->session->set('discogs_token', serialize($tokenCredentials));
-        return true;
-      } catch (\Exception $e) {
-        error_log($e->getMessage());
-        return false;
-      }
-
+    if (!$consumerKey || !$consumerSecret) {
+      \Drupal::logger('discogs_lookup')->error(
+        'No client Key-Secret pair available for Discogs.'
+      );
+      return [];
     }
-    return false;
+
+    // Discogs API URL.
+    $url = 'https://api.discogs.com/database/search';
+
+    try {
+      // Send the request to Discogs API.
+      $response = $this->httpClient->get($url, [
+        'query' => [
+          'q' => $term,
+          'type' => $discogsType,
+          'key' => $consumerKey,
+          'secret' => $consumerSecret,
+        ],
+      ]);
+
+      \Drupal::logger('discogs_lookup')->debug('Raw API Response: @response', [
+        '@response' => $response->getBody()->getContents(),
+      ]);
+
+      // Decode the JSON response.
+      $data = json_decode($response->getBody(), TRUE);
+
+      // Extract the items for the specified type.
+      $items = $data["{$discogsType}s"]['items'] ?? [];
+
+      \Drupal::logger('discogs_lookup')->debug('Extracted items: @items', [
+        '@items' => print_r($items, TRUE),
+      ]);
+
+
+      // Use the parser to generate markup.
+      return $this->resultParser->parseResults($items, $discogsType);
+    } catch (GuzzleException $e) {
+      \Drupal::logger('discogs_lookup')->error('Discogs API error: @message', ['@message' => $e->getMessage()]);
+
+      return [];
+    }
   }
 
-
-  public function search(string $query)
+  public function getDetails(array $params): array
   {
-    $tokenCredentials = unserialize($this->session->get('discogs_token'));
+    if (empty($params['uri']) || empty($params['type']) || empty($params['provider'])) {
+      return [
+        '#markup' => $this->t('Missing params.'),
+      ];
+    }
 
-    if (!$tokenCredentials) {
-      return ['error' => 'Not authenticated with Discogs.'];
+    $url = 'https://api.discogs.com/v1/';
+
+    $url = $url . strtolower($params['type']) . "s/";
+
+    // Get the stored API token.
+    $config = $this->configFactory->get('discogs_lookup.settings');
+    $accessToken = $config->get('api_token');
+
+    if (!$accessToken) {
+      \Drupal::logger('discogs_lookup')->error('No API token available for Discogs.');
+      return [];
     }
 
     try {
-      $response = $this->client->get('database/search', [
-        'query' => $query,
-        'type' => 'artist,release,master',
-        'per_page' => 50,
+      // Send the request to Discogs API.
+      $response = $this->httpClient->get($url, [
         'headers' => [
-          'Authorization' => 'OAuth ' . $tokenCredentials->getAuthToken(),
-          'User-Agent' => 'YourAppName/1.0 +http://yourwebsite.com',
+          'Authorization' => 'Bearer ' . $accessToken,
         ],
       ]);
-      $data = json_decode($response->getBody(), true);
-      return $data;
-    } catch (\Exception $e) {
-      error_log($e->getMessage());
-      return ['error' => $e->getMessage()];
+      $data = json_decode($response->getBody(), TRUE);
+
+      // Parse out the details we want before returning
+      return $this->resultParser->parseDetails($data, $params['type']);
+    } catch (GuzzleException $e) {
+      \Drupal::logger('discogs_lookup')->error('Discogs API error: @message', ['@message' => $e->getMessage()]);
+
+      return [];
     }
   }
+
 }
+

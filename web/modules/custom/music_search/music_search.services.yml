@@ -15,7 +15,11 @@ services:
       - '@music_search.spotify_lookup.result_parser'
 
   music_search.discogs_service:
-    class: Drupal\music_search\DiscogsMockService
+    class: Drupal\discogs_lookup\DiscogsLookupService
+    arguments:
+      - '@http_client'
+      - '@config.factory'
+      - '@music_search.discogs_lookup.result_parser'
 
   music_search.service:
     class: Drupal\music_search\MusicSearchService

@@ -105,45 +105,6 @@ class MusicSearchResultsController extends ControllerBase {
 
     $type = $details['spotify']['type'] ?? 'album';
 
-    // Insert dummy Discogs data as before.
-    // TODO: Remove dummy data once Discogs integration is done.
-    if ($type === 'artist') {
-      $discogs_data = [
-        'type' => 'artist',
-        'name' => 'John Doe',
-        'image' => 'https://example.com/artist.jpg',
-        'url' => 'https://example.com/artist',
-        'date_of_birth' => '1970-01-01',
-        'date_of_death' => '2000-01-01',
-        'website' => 'https://exampleartist.com',
-      ];
-    }
-    elseif ($type === 'album') {
-      $discogs_data = [
-        'type' => 'album',
-        'name' => 'Example Album Title',
-        'image_url' => 'https://example.com/album.jpg',
-        'label' => 'Example Music Label',
-        'release_date' => '2023-01-20',
-        'genres' => 'Rock,Pop',
-        'publisher' => 'Example Publisher',
-        'description' => 'Example album description',
-        'artist' => 'John Doe',
-        'songs' => 'Song1,Song2'
-      ];
-    }
-    else { // song
-      $discogs_data = [
-        'type' => 'song',
-        'name' => 'Example Song Title',
-        'duration' => '03:45',
-        'artist' => 'John Doe',
-        'album' => 'Example Album Title',
-      ];
-    }
-
-    $details['discogs'] = $discogs_data;
-
     // Build the form.
     return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\EntityFieldSelectorForm::class, $type, $details);
   }
