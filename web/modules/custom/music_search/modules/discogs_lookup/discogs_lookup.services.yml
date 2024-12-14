@@ -10,11 +10,11 @@ services:
       - { name: music_search_provider, provider: 'discogs' }
 
   music_search.discogs_lookup.token_service:
-    class: Drupal\discogs_lookup\discogsTokenService
+    class: Drupal\discogs_lookup\DiscogsTokenService
     arguments: [ '@http_client' ]
 
   music_search.discogs_lookup.result_parser:
-    class: Drupal\discogs_lookup\discogsResultParser
+    class: Drupal\discogs_lookup\DiscogsResultParser
 
   music_search.discogs_lookup.discogs_uri_extractor:
-    class: Drupal\discogs_lookup\discogsUriExtractor
+    class: Drupal\discogs_lookup\DiscogsUriExtractor
