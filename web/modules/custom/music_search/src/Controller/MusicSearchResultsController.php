@@ -96,8 +96,10 @@ class MusicSearchResultsController extends ControllerBase {
     }
 
     $details = $this->musicSearchService->getDetails($params);
-
-    if (empty($details['spotify'])) {
+    \Drupal::logger('music_search.service')->debug('Detail query result passed to controller: @details', [
+        '@details' => print_r($details, TRUE),
+      ]
+    );    if (empty($details['spotify'])) {
       return [
         '#markup' => $this->t('No details found for this item.'),
       ];

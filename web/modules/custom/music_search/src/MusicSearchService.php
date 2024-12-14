@@ -54,6 +54,10 @@ class MusicSearchService {
 
     if (isset($this->searchServices[$params['provider']])) {
       $results[$params['provider']] = $this->searchServices[$params['provider']]->getDetails($params);
+      \Drupal::logger('music_search.service')->debug('Detail query result in music_search.service: @results', [
+        '@results' => print_r($results, TRUE),
+        ]
+      );
     }
 
     return $results;

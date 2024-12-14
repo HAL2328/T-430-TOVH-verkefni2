@@ -22,11 +22,14 @@ class DiscogsResultParser {
     if (isset($items['error'])) {
       return $items;
     }
-
     $formattedResults = [];
     $baseDiscogsUrl = 'https://open.discogs.com';
 
-    foreach ($items['results'] as $item) {
+    \Drupal::logger('discogs_parser')->debug('Items passed to parser: @items', [
+      '@items' => print_r($items, TRUE),
+    ]);
+
+    foreach ($items as $item) {
       // General fields for all types
       $id = $item['id'] ?? null;
       $title = $item['title'] ?? 'Unknown';
@@ -52,15 +55,17 @@ class DiscogsResultParser {
 
       // Combine fields into a single result array
       $formattedResults[] = array_merge([
-        'id' => $id,
-        'title' => $title,
+        'uri' => $id,
+        'name' => $title,
         'image' => $image,
+        'artist' => $details['artist_name'] ?? 'Unknown',
         'discogs_url' => $id ? "$baseDiscogsUrl/$type/$id" : null,
+        'type' => $type,
       ], $details);
     }
 
-    \Drupal::logger('discogs_lookup')->debug('Parsed Results in parseResults: @results', [
-      '@results' => print_r($formattedResults, TRUE),
+    \Drupal::logger('discogs_parser')->debug('Parsed Results in parseResults: @formattedResults', [
+      '@formattedResults' => print_r($formattedResults, TRUE),
     ]);
 
     return $formattedResults;

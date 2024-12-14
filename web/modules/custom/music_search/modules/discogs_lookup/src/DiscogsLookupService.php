@@ -99,7 +99,7 @@ class DiscogsLookupService implements SearchServiceInterface
       $data = json_decode($response->getBody(), TRUE);
 
       // Extract the items for the specified type.
-      $items = $data["{$discogsType}s"]['items'] ?? [];
+      $items = $data['results'] ?? [];
 
       \Drupal::logger('discogs_lookup')->debug('Extracted items: @items', [
         '@items' => print_r($items, TRUE),

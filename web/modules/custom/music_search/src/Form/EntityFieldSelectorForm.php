@@ -34,7 +34,7 @@ class EntityFieldSelectorForm extends FormBase {
     $details = $details ?: $this->details;
 
     // Validate the details structure.
-    if (!is_array($details) || !isset($details['spotify'], $details['discogs'])) {
+    if (!is_array($details)) {
       return [
         '#markup' => $this->t('Invalid details provided for this form.'),
       ];
@@ -83,13 +83,9 @@ class EntityFieldSelectorForm extends FormBase {
     \Drupal::logger('music_search')->notice('Details: ' . print_r($details, TRUE));
     // Loop through each field and create a row in the table.
     foreach ($fields as $machine_name => $label) {
-      $spotify_value = isset($details['spotify'][$this->normalizeKey($machine_name)])
-        ? $details['spotify'][$this->normalizeKey($machine_name)]
-        : 'N/A';
+      $spotify_value = $details['spotify'][$this->normalizeKey($machine_name)] ?? 'N/A';
 
-      $discogs_value = isset($details['discogs'][$this->normalizeKey($machine_name)])
-        ? $details['discogs'][$this->normalizeKey($machine_name)]
-        : 'N/A';
+      $discogs_value = $details['discogs'][$this->normalizeKey($machine_name)] ?? 'N/A';
 
       $form['fields_table'][$machine_name]['field_label'] = [
         '#plain_text' => $label,
