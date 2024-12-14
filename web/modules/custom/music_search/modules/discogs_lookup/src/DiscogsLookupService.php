@@ -123,27 +123,45 @@ class DiscogsLookupService implements SearchServiceInterface
       ];
     }
 
-    $url = 'https://api.discogs.com/v1/';
+    \Drupal::logger('discogs_lookup.service')->debug('Params passed to getDetails(): @params', [
+        '@params' => print_r($params, TRUE),
+      ]
+    );
 
-    $url = $url . strtolower($params['type']) . "s/";
+    $url = 'https://api.discogs.com/';
+
+    $url = $url . strtolower($params['type']) . "s/" . $params['uri'];
 
     // Get the stored API token.
     $config = $this->configFactory->get('discogs_lookup.settings');
-    $accessToken = $config->get('api_token');
+    $consumerKey = $config->get('consumer_key');
+    $consumerSecret = $config->get('consumer_secret');
 
-    if (!$accessToken) {
-      \Drupal::logger('discogs_lookup')->error('No API token available for Discogs.');
-      return [];
-    }
+    \Drupal::logger('discogs_lookup')->debug('Consumer Key: @key, Consumer Secret: @secret, Url: @url', [
+      '@key' => $consumerKey,
+      '@secret' => $consumerSecret,
+      '@url' => $url,
+    ]);
+
 
     try {
       // Send the request to Discogs API.
       $response = $this->httpClient->get($url, [
-        'headers' => [
-          'Authorization' => 'Bearer ' . $accessToken,
+        'query' => [
+          'key' => $consumerKey,
+          'secret' => $consumerSecret,
         ],
       ]);
+
+      \Drupal::logger('discogs_lookup')->debug('Raw response: @response', [
+        '@response' => print_r($response, TRUE),
+      ]);
+
       $data = json_decode($response->getBody(), TRUE);
+
+      \Drupal::logger('discogs_lookup')->debug('Datafied response: @response', [
+        '@response' => print_r($data, TRUE),
+      ]);
 
       // Parse out the details we want before returning
       return $this->resultParser->parseDetails($data, $params['type']);

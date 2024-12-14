@@ -99,13 +99,15 @@ class MusicSearchResultsController extends ControllerBase {
     \Drupal::logger('music_search.service')->debug('Detail query result passed to controller: @details', [
         '@details' => print_r($details, TRUE),
       ]
-    );    if (empty($details['spotify'])) {
+    );
+
+    if (empty($details)) {
       return [
         '#markup' => $this->t('No details found for this item.'),
       ];
     }
 
-    $type = $details['spotify']['type'] ?? 'album';
+    $type = $parms['type'] ?? 'artist';
 
     // Build the form.
     return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\EntityFieldSelectorForm::class, $type, $details);
