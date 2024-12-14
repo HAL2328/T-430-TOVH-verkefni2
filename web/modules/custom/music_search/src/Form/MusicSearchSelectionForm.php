@@ -57,6 +57,9 @@ class MusicSearchSelectionForm extends FormBase {
 
         // Prepare the label with an optional image.
         $label_text = $item['name'] . ' (' . $item['type'] . ')';
+        if (!empty($item['artist'])) {
+            $label_text .= ' - Artist: ' . $item['artist'];
+        }
         $image_html = '';
         if (!empty($item['image'])) {
           // Add a small square image (e.g., 50x50).

@@ -19,8 +19,15 @@ class SpotifyResultParser {
    *   A structured array of results for display or further use.
    */
   public function parseResults(array $items, string $type): array {
+    if (isset($items['error'])) {
+      return $items;
+    }
+
+
     $formattedResults = [];
     $baseSpotifyUrl = 'https://open.spotify.com';
+
+
 
     foreach ($items as $item) {
       // Extract main details.
@@ -28,25 +35,18 @@ class SpotifyResultParser {
       $image = $item['images'][0]['url'] ?? ''; // Use the first image, if available.
       $uri = $item['uri'] ?? ''; // Spotify URI.
       $id = explode(':', $uri)[2] ?? null;
+      $artist = $item['artists'][0]['name'] ?? null;
 
       // Extract artist details if available.
-      $artists = [];
-      if (isset($item['artists'])) {
-        foreach ($item['artists'] as $artist) {
-          $artists[] = [
-            'name' => $artist['name'] ?? 'Unknown',
-            'url' => $artist['external_urls']['spotify'] ?? '#',
-          ];
-        }
-      }
+
 
       // Add the parsed data to the results.
       $formattedResults[] = [
         'name' => $name,
         'image' => $image,
         'uri' => $uri,
+        'artist' => $artist,
         'type' => ucfirst($type),
-        'artists' => $artists,
         'spotify_url' => $id ? $baseSpotifyUrl . '/' . $type . '/' . $id : null,
       ];
     }
