@@ -33,6 +33,13 @@ class EntityFieldSelectorForm extends FormBase {
     $type = $type ?: $this->type;
     $details = $details ?: $this->details;
 
+    // Validate the details structure.
+    if (!is_array($details) || !isset($details['spotify'], $details['discogs'])) {
+      return [
+        '#markup' => $this->t('Invalid details provided for this form.'),
+      ];
+    }
+
     // Determine which fields to display based on type.
     $fields_map = [
       'artist' => [
@@ -73,12 +80,16 @@ class EntityFieldSelectorForm extends FormBase {
       '#type' => 'table',
       '#header' => [$this->t('Field'), $this->t('Spotify'), $this->t('Discogs'), $this->t('Use This')],
     ];
-
+    \Drupal::logger('music_search')->notice('Details: ' . print_r($details, TRUE));
     // Loop through each field and create a row in the table.
     foreach ($fields as $machine_name => $label) {
-      // For the title field, the field key might just be 'title' instead of a machine_name.
-      $spotify_value = $details['spotify'][$this->normalizeKey($machine_name)] ?? 'N/A';
-      $discogs_value = $details['discogs'][$this->normalizeKey($machine_name)] ?? 'N/A';
+      $spotify_value = isset($details['spotify'][$this->normalizeKey($machine_name)])
+        ? $details['spotify'][$this->normalizeKey($machine_name)]
+        : 'N/A';
+
+      $discogs_value = isset($details['discogs'][$this->normalizeKey($machine_name)])
+        ? $details['discogs'][$this->normalizeKey($machine_name)]
+        : 'N/A';
 
       $form['fields_table'][$machine_name]['field_label'] = [
         '#plain_text' => $label,
@@ -115,6 +126,7 @@ class EntityFieldSelectorForm extends FormBase {
 
     return $form;
   }
+
 
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $type = $form_state->getValue('type');

@@ -98,10 +98,9 @@ class SpotifyResultParser {
       'name' => $item['name'] ?? null,
       'release_date' => $item['release_date'] ?? null,
       'artists' => $item['artists'][0]['name'] ?? null,
-      'tracks' => $tracks,
       'date' => $item['external_urls']['spotify'] ?? null,
       'label' => $item['label'] ?? null,
-      'genres' => $item['genres'] ?? null,
+      'genres' => $item['genres'][0] ?? null,
       'image' => $item['images'][0]['url'] ?? null,
       'type' => 'album'
     ];
