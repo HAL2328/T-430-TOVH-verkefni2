@@ -78,7 +78,7 @@ class SpotifyResultParser {
     $result = [
       'name' => $item['name'],
       'album' => $item['album']['name'] ?? null,
-      'artists' => $item['artists'] ?? null,
+      'artists' => $item['artists'][0]['name'] ?? null,
       'duration' => $item['duration_ms'] ?? null,
       'spotify_id' => $item['id'] ?? null,
       'type' => 'song'
