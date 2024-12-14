@@ -47,13 +47,68 @@ function music_search_theme() {
   ];
 }
 
+
+
+
 /**
  * Implements hook_ENTITY_TYPE_create() for 'node'.
  */
-function music_search_node_create(Node $node) {
+function music_search_node_create(\Drupal\node\Entity\Node $node) {
+  \Drupal::logger('music_search')->notice('music_search_node_create hook triggered.');
+
+  // Log the node type.
+  \Drupal::logger('music_search')->notice('Node type: ' . $node->getType());
+
+  // Check if the node type is 'artist'.
   if ($node->getType() == 'artist') {
-    if (\Drupal::routeMatch()->getRouteName() == 'node.add') {
-      $node->setTitle('Steely Dan fans anonymous');
+    \Drupal::logger('music_search')->notice('Entering the artist type block.');
+
+    // Check the route and its parameters.
+    $route_name = \Drupal::routeMatch()->getRouteName();
+    \Drupal::logger('music_search')->notice('Route name: ' . $route_name);
+
+
+    if ($route_name == 'node.add') {
+      \Drupal::logger('music_search')->notice('Route matches node.add and node_type is artist.');
+
+      // Retrieve and decode session data.
+      $session = \Drupal::service('session');
+      $raw_data = $session->get('music_search.data', []);
+      \Drupal::logger('music_search')->notice('Raw session data: ' . print_r($raw_data, TRUE));
+
+      $data = is_string($raw_data) ? json_decode($raw_data, TRUE) : $raw_data;
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        \Drupal::logger('music_search')->error('Failed to decode session data: ' . json_last_error_msg());
+        return;
+      }
+
+      \Drupal::logger('music_search')->notice('Decoded session data: ' . print_r($data, TRUE));
+
+      // Set the node fields if session data is present.
+      if (!empty($data)) {
+        if (isset($data['title'])) {
+          $node->setTitle($data['title']);
+          \Drupal::logger('music_search')->notice('Node title set to: ' . $data['title']);
+        }
+        if (isset($data['field_artist_picture']) && $data['field_artist_picture'] !== 'N/A') {
+          $node->set('field_artist_picture', $data['field_artist_picture']);
+          \Drupal::logger('music_search')->notice('Field artist picture set to: ' . $data['field_artist_picture']);
+        }
+        if (isset($data['field_date_of_birth']) && $data['field_date_of_birth'] !== 'N/A') {
+          $node->set('field_date_of_birth', $data['field_date_of_birth']);
+          \Drupal::logger('music_search')->notice('Field date of birth set to: ' . $data['field_date_of_birth']);
+        }
+        if (isset($data['field_date_of_death']) && $data['field_date_of_death'] !== 'N/A') {
+          $node->set('field_date_of_death', $data['field_date_of_death']);
+          \Drupal::logger('music_search')->notice('Field date of death set to: ' . $data['field_date_of_death']);
+        }
+        if (isset($data['field_website']) && $data['field_website'] !== 'N/A') {
+          $node->set('field_website', $data['field_website']);
+          \Drupal::logger('music_search')->notice('Field website set to: ' . $data['field_website']);
+        }
+      } else {
+        \Drupal::logger('music_search')->warning('No session data found or session data is empty.');
+      }
     }
   }
 }

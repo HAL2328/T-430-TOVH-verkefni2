@@ -85,10 +85,9 @@ class MusicSearchResultsController extends ControllerBase {
   /**
    * Handles the detail query for a selected item.
    */
-  public function detailQuery(): array {
-    // Fetches all queries from the current request.
+  public function detailQuery() {
+    // Fetch queries.
     $params = \Drupal::request()->query->all();
-
 
     if (!$params) {
       return [
@@ -97,54 +96,70 @@ class MusicSearchResultsController extends ControllerBase {
     }
 
     $details = $this->musicSearchService->getDetails($params);
+
     if (empty($details['spotify'])) {
       return [
         '#markup' => $this->t('No details found for this item.'),
       ];
     }
+
     $type = $details['spotify']['type'] ?? 'album';
-    \Drupal::logger('music_search')->notice('Details received: <pre>@details</pre>', ['@details' => print_r($details, TRUE)]);
 
-    $testurl = 'testibestie';
-    // Dummy data remember to delete this..
-    $discogs_album = [
-      'type' => 'album',
-      'name' => 'Example Album Title',
-      'image_url' => $testurl,
-      'label' => 'Example Music Label',
-      'release_date' => '2023-01-20',
-    ];
-    $discogs_artist = [
-      'type' => 'artist',
-      'name' => 'John Doe',
-      'image' => $testurl,
-      'url' => $testurl,
-    ];
-    $discogs_song = [
-      'type' => 'song',
-      'spotify_id' => '1234567890abcdef',
-      'duration' => '122321',
-      'name' => 'Example Song Title',
-    ];
-    $details['discogs'] = $discogs_album;
+    // Insert dummy Discogs data as before.
+    // TODO: Remove dummy data once Discogs integration is done.
+    if ($type === 'artist') {
+      $discogs_data = [
+        'type' => 'artist',
+        'name' => 'John Doe',
+        'image' => 'https://example.com/artist.jpg',
+        'url' => 'https://example.com/artist',
+        'date_of_birth' => '1970-01-01',
+        'date_of_death' => '2000-01-01',
+        'website' => 'https://exampleartist.com',
+      ];
+    }
+    elseif ($type === 'album') {
+      $discogs_data = [
+        'type' => 'album',
+        'name' => 'Example Album Title',
+        'image_url' => 'https://example.com/album.jpg',
+        'label' => 'Example Music Label',
+        'release_date' => '2023-01-20',
+        'genres' => 'Rock,Pop',
+        'publisher' => 'Example Publisher',
+        'description' => 'Example album description',
+        'artist' => 'John Doe',
+        'songs' => 'Song1,Song2'
+      ];
+    }
+    else { // song
+      $discogs_data = [
+        'type' => 'song',
+        'name' => 'Example Song Title',
+        'duration' => '03:45',
+        'artist' => 'John Doe',
+        'album' => 'Example Album Title',
+      ];
+    }
 
-    return [
-      '#theme' => 'entity_field_selector',
-      '#entity_type' => $type,
-      '#details' => $details,
-      '#cache' => [
-        'max-age' => 0,
-      ],
-      '#attached' => [
-        'library' => [
-          'music_search/entity_field_selector_css',
-        ],
-      ],
-    ];
-    //return [
-    //  '#theme' => 'music_search_item_detail',
-    //  '#details' => $details['spotify'],
-    //];
+    $details['discogs'] = $discogs_data;
+
+    // Build the form.
+    return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\EntityFieldSelectorForm::class, $type, $details);
+  }
+
+  public function createContent() {
+    // This method receives the chosen fields from the form submission.
+    $request = \Drupal::request();
+    $type = $request->query->get('type');
+    $fields = $request->query->get('fields');
+
+    // Store fields in session or directly redirect with query parameters.
+    $session = \Drupal::request()->getSession();
+    $session->set('music_search.data', $fields);
+
+    // Redirect to node/add/<type>
+    return $this->redirect('node.add', ['node_type' => $type]);
   }
 
   /*
