@@ -3,6 +3,7 @@
 namespace Drupal\music_search\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\music_search\Form\MusicSearchSelectionForm;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Drupal\music_search\MusicSearchService;
@@ -76,18 +77,13 @@ class MusicSearchResultsController extends ControllerBase {
       $params['type'],
       $params['term']
     );
-    $seperated_results = [
-      'spotify' => [],
-      'discogs' => [],
-    ];
-    foreach ($search_results as $result) {
-      if ($seperated_results['provider'] == 'spotify') {
-        $seperated_results['spotify'][] = $result;
-      } elseif ($seperated_results['provider'] === 'discogs') {
-        $seperated_results['discogs'][] = $result;
-      }
-    }
-    return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\MusicSearchSelectionForm::class, $seperated_results);
+    //$render_array = [];
+    //foreach ($search_results as $result) {
+    //  $form = \Drupal::formBuilder()->getForm(MusicSearchSelectionForm::class, $result);
+    //  $render_array[] = $form;
+    //}
+
+    return \Drupal::formBuilder()->getForm(MusicSearchSelectionForm::class, $search_results);
   }
 
   /**
@@ -95,8 +91,10 @@ class MusicSearchResultsController extends ControllerBase {
    */
   public function detailQuery(): array
   {
-    // Fetch queries.
-    $params = \Drupal::request()->query->all();
+
+    $params = $this->session->get('selected_items', []);
+
+
 
     if (!$params) {
       return [
