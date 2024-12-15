@@ -136,23 +136,23 @@ class MusicSearchResultsController extends ControllerBase {
     $selectedFields = $request->get('fields');
 
     if (!empty($selectedFields)) {
-      // Store the `fields` array into the session under `selected_fields` key.
+      // Store the `fields` array in the session.
       $this->session->set('selected_fields', $selectedFields);
 
-      // Optional: Log the operation for debugging purposes.
+
       \Drupal::logger('music_search')->notice('Selected fields stored in session: @fields', [
         '@fields' => print_r($selectedFields, TRUE),
       ]);
     }
 
-    // If no fields were selected, inform the user.
+
     if (empty($selectedFields)) {
       return [
         '#markup' => $this->t('No fields were selected.'),
       ];
     }
 
-    // Render a success message or redirect.
+    // Redirect
     return [
       '#markup' => $this->t('The selected fields were successfully stored in the session.'),
     ];

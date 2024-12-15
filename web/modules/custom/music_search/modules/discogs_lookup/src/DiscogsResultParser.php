@@ -100,7 +100,7 @@ class DiscogsResultParser {
   private function parseArtistDetails(array $item): array {
     return [
       'name' => $item['name'] ?? 'Unknown',
-      'profile' => $item['profile'] ?? null,
+      'body' => $item['profile'] ?? null,
       'genres' => $item['genres'] ?? [],
       'images' => $item['images'][0]['uri'] ?? null,
       'discogs_url' => $item['resource_url'] ?? null,

@@ -17,7 +17,6 @@ class EntityFieldSelectorForm extends FormBase {
   }
 
   public static function create($container) {
-    // Normally, you'd inject services here if needed. For simplicity, omit it.
     return new static(
       $container->get('request_stack')->getCurrentRequest()->get('type'),
       $container->get('request_stack')->getCurrentRequest()->get('details')
@@ -48,6 +47,7 @@ class EntityFieldSelectorForm extends FormBase {
         'field_date_of_birth' => 'Date of Birth',
         'field_date_of_death' => 'Date of Death',
         'field_website' => 'Website',
+        'body' => 'About'
       ],
       'album' => [
         'title' => 'Name',
@@ -163,6 +163,7 @@ class EntityFieldSelectorForm extends FormBase {
       'field_date_of_death' => 'date_of_death',
       'field_website' => 'website',
       'field_duration' => 'duration',
+      'body' => 'body',
     ];
 
     return $key_mappings[$key] ?? $key;
