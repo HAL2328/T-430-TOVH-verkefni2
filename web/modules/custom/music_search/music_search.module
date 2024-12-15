@@ -47,9 +47,6 @@ function music_search_theme() {
   ];
 }
 
-
-
-
 /**
  * Implements hook_ENTITY_TYPE_create() for 'node'.
  */
