@@ -66,8 +66,6 @@ class SpotifyResultParser {
   private function parseArtistDetails(array $item): array {
     $result = [
       'name' => $item['name'] ?? null,
-      'image' => isset($item['images'][0]['url']) ? $item['images'][0]['url'] : null,
-      'url' => $item['external_urls']['spotify'] ?? null,
       'type' => 'artist'
     ];
     return $result;
