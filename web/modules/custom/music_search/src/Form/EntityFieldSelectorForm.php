@@ -76,37 +76,41 @@ class EntityFieldSelectorForm extends FormBase {
       return $form;
     }
 
+    // Create the table header dynamically based on available services.
+    $services = array_keys($details); // e.g., ['spotify', 'discogs', 'apple_music']
+    $header = array_merge([$this->t('Field')], array_map([$this, 't'], $services), [$this->t('Use This')]);
+
     $form['fields_table'] = [
       '#type' => 'table',
-      '#header' => [$this->t('Field'), $this->t('Spotify'), $this->t('Discogs'), $this->t('Use This')],
+      '#header' => $header,
     ];
-    \Drupal::logger('music_search')->notice('Details: ' . print_r($details, TRUE));
+
     // Loop through each field and create a row in the table.
     foreach ($fields as $machine_name => $label) {
-      $spotify_value = $details['spotify'][$this->normalizeKey($machine_name)] ?? 'N/A';
-
-      $discogs_value = $details['discogs'][$this->normalizeKey($machine_name)] ?? 'N/A';
-
-      $form['fields_table'][$machine_name]['field_label'] = [
-        '#plain_text' => $label,
-      ];
-      $form['fields_table'][$machine_name]['spotify'] = [
-        '#markup' => Markup::create($spotify_value),
-      ];
-      $form['fields_table'][$machine_name]['discogs'] = [
-        '#markup' => Markup::create($discogs_value),
+      $row = [
+        'field_label' => ['#plain_text' => $label],
       ];
 
-      // Radios to choose which source or none.
-      $form['fields_table'][$machine_name]['use_this'] = [
+      $radio_options = [];
+
+      // Add a column for each service dynamically.
+      foreach ($services as $service) {
+        $value = $details[$service][$this->normalizeKey($machine_name)] ?? 'N/A';
+        $row[$service] = ['#markup' => Markup::create($value)];
+        $radio_options[$value] = ucfirst($service);
+      }
+
+      // Add the "None" option.
+      $radio_options[''] = $this->t('None');
+
+      // Add the radio button column.
+      $row['use_this'] = [
         '#type' => 'radios',
-        '#options' => [
-          $spotify_value => $this->t('Spotify'),
-          $discogs_value => $this->t('Discogs'),
-          '' => $this->t('None'),
-        ],
-        '#default_value' => $spotify_value,
+        '#options' => $radio_options,
+        '#default_value' => array_key_first($radio_options), // Default to the first service's value.
       ];
+
+      $form['fields_table'][$machine_name] = $row;
     }
 
     $form['actions']['submit'] = [
@@ -122,7 +126,6 @@ class EntityFieldSelectorForm extends FormBase {
 
     return $form;
   }
-
 
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $type = $form_state->getValue('type');
@@ -143,58 +146,25 @@ class EntityFieldSelectorForm extends FormBase {
     ]);
   }
 
-  /**
-   * Normalize the machine name or 'title' to match details keys.
-   */
   protected function normalizeKey($key) {
-    // For simplicity, assume detail arrays use 'name' for title.
-    // Adjust logic as needed based on your actual data structure.
-    if ($key === 'title') {
-      return 'name';
-    }
-    // For year_of_release could be 'release_date' or something else.
-    // If keys differ, map them accordingly here.
-    if ($key === 'field_year_of_release') {
-      return 'release_date';
-    }
-    if ($key === 'field_album_cover') {
-      return 'image_url';
-    }
-    if ($key === 'field_artist_picture') {
-      return 'image';
-    }
-    if ($key === 'field_song_album') {
-      return 'album';
-    }
-    if ($key === 'field_song_artist' || $key === 'field_artist') {
-      return 'artist';
-    }
-    if ($key === 'field_album_description') {
-      return 'description';
-    }
-    if ($key === 'field_album_publisher') {
-      return 'publisher';
-    }
-    if ($key === 'field_album_songs') {
-      return 'songs';
-    }
-    if ($key === 'field_album_genres') {
-      return 'genres';
-    }
-    if ($key === 'field_date_of_birth') {
-      return 'date_of_birth';
-    }
-    if ($key === 'field_date_of_death') {
-      return 'date_of_death';
-    }
-    if ($key === 'field_website') {
-      return 'website';
-    }
-    if ($key === 'field_duration') {
-      return 'duration';
-    }
+    // Maps keys from machine names to the keys used in the details array.
+    $key_mappings = [
+      'title' => 'name',
+      'field_year_of_release' => 'release_date',
+      'field_album_cover' => 'image_url',
+      'field_artist_picture' => 'image',
+      'field_song_album' => 'album',
+      'field_song_artist' => 'artist',
+      'field_album_description' => 'description',
+      'field_album_publisher' => 'publisher',
+      'field_album_songs' => 'songs',
+      'field_album_genres' => 'genres',
+      'field_date_of_birth' => 'date_of_birth',
+      'field_date_of_death' => 'date_of_death',
+      'field_website' => 'website',
+      'field_duration' => 'duration',
+    ];
 
-    // Default fallback: use as is.
-    return $key;
+    return $key_mappings[$key] ?? $key;
   }
 }

@@ -32,6 +32,9 @@ class DiscogsResultParser {
     foreach ($items as $item) {
       // General fields for all types
       $id = $item['id'] ?? null;
+      if (strtolower($type) === 'track' && isset($item['master_id'])) {
+        $id = $item['master_id'];
+      }
       $title = $item['title'] ?? 'Unknown';
       $image = $item['cover_image'] ?? '';
       $resourceUrl = $item['resource_url'] ?? null;
@@ -127,8 +130,8 @@ class DiscogsResultParser {
       'name' => $item['title'] ?? 'Unknown',
       'release_date' => $item['released'] ?? null,
       'genres' => $item['genres'] ?? [],
-      'tracklist' => array_map(fn($track) => $track['title'], $item['tracklist'] ?? []),
       'discogs_url' => $item['resource_url'] ?? null,
+      'body' => $item['notes'] ?? null,
       'type' => 'album',
     ];
   }

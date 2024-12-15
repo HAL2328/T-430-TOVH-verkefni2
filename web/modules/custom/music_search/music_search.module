@@ -54,7 +54,6 @@ function music_search_theme() {
  * Implements hook_ENTITY_TYPE_create() for 'node'.
  */
 function music_search_node_create(\Drupal\node\Entity\Node $node) {
-  // Retrieve and decode session data.
   $session = \Drupal::service('session');
   $raw_data = $session->get('music_search.data', []);
   $data = is_string($raw_data) ? json_decode($raw_data, TRUE) : $raw_data;
@@ -63,7 +62,7 @@ function music_search_node_create(\Drupal\node\Entity\Node $node) {
     return;
   }
 
-  // Determine the node type and set appropriate fields.
+
   $type = $node->getType();
 
   if ($type === 'artist') {

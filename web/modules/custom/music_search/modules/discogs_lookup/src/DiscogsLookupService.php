@@ -130,7 +130,14 @@ class DiscogsLookupService implements SearchServiceInterface
 
     $url = 'https://api.discogs.com/';
 
-    $url = $url . strtolower($params['type']) . "s/" . $params['uri'];
+    $discogsType = match (strtolower($params['type'])) {
+      'artist' => 'artists',
+      'album' => 'releases',
+      'song', 'track' => 'masters',
+    };
+
+
+    $url = $url . $discogsType . "/" . $params['uri'];
 
     // Get the stored API token.
     $config = $this->configFactory->get('discogs_lookup.settings');
