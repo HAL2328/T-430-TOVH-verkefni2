@@ -90,11 +90,8 @@ function music_search_node_create(\Drupal\node\Entity\Node $node) {
     if (isset($data['title'])) {
       $node->setTitle($data['title']);
     }
-    if (isset($data['field_description']) && $data['field_description'] !== 'N/A') {
-      $node->set('field_album_description', $data['field_album_description']);
-    }
     if (isset($data['field_year_of_release']) && $data['field_year_of_release'] !== 'N/A') {
-      $node->set('field_year_of_release', $data['field_year_of_release']);
+      $node->set('field_year_of_release', (string) $data['field_year_of_release']);
     }
   }
 
@@ -103,13 +100,10 @@ function music_search_node_create(\Drupal\node\Entity\Node $node) {
       $node->setTitle($data['title']);
     }
     if (isset($data['field_duration']) && $data['field_duration'] !== 'N/A') {
+      \Drupal::logger('form_populating_hook')->debug('Data field duration is @data', [
+        '@data' => print_r($data['field_duration'], TRUE),
+      ]);
       $node->set('field_duration', $data['field_duration']);
-    }
-    if (isset($data['field_song_album']) && $data['field_song_album'] !== 'N/A') {
-      $node->set('field_song_album', $data['field_song_album']);
-    }
-    if (isset($data['field_song_artist']) && $data['field_song_artist'] !== 'N/A') {
-      $node->set('field_song_artist', $data['field_song_artist']);
     }
   }
 }

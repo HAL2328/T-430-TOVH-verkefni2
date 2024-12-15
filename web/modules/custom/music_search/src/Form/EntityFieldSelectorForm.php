@@ -58,6 +58,10 @@ class EntityFieldSelectorForm extends FormBase {
         'title' => 'Title',
         'field_description' => 'Description',
         'field_year_of_release' => 'Year of release',
+      ],
+      'song' => [
+        'title' => 'Title',
+        'field_duration' => 'Duration',
       ]
     ];
 
@@ -158,6 +162,7 @@ class EntityFieldSelectorForm extends FormBase {
       'field_date_of_death' => 'date_of_death',
       'field_description' => 'album_description',
       'field_year_of_release' => 'year',
+      'field_duration' => 'duration',
     ];
 
     return $key_mappings[$key] ?? $key;

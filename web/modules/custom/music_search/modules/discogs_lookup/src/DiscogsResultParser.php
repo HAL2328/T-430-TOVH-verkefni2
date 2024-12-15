@@ -23,8 +23,8 @@ class DiscogsResultParser {
     $formattedResults = [];
     $baseDiscogsUrl = 'https://open.discogs.com';
 
-    \Drupal::logger('discogs_parser')->debug('Items passed to parser: @items', [
-      '@items' => print_r($items, TRUE),
+    \Drupal::logger('discogs_parser')->debug('Type is: @type', [
+      '@type' => print_r($type, TRUE),
     ]);
 
     foreach ($items as $item) {
@@ -33,7 +33,11 @@ class DiscogsResultParser {
         continue;
       }
 
-      if ($type === 'album' && isset($item['master_id'])) {
+      if ($type === 'track' && $item['type'] !== 'master') {
+        continue;
+      }
+
+      if (($type === 'album' || $type === 'track') && isset($item['master_id'])) {
         $id = $item['master_id'];
       }
 
@@ -70,6 +74,9 @@ class DiscogsResultParser {
    *   The structured details array.
    */
   public function parseDetails(array $item, string $type): array {
+    \Drupal::logger('discogs_parser')->debug('Type passed to parser: @type', [
+      '@type' => print_r($type, TRUE),
+    ]);
     return match ($type) {
       'artist' => $this->parseArtistDetails($item),
       'album' => $this->parseAlbumDetails($item),
@@ -98,7 +105,7 @@ class DiscogsResultParser {
     return [
       'name' => $item['title'] ?? 'Unknown',
       'artists' => $item['artists'] ?? [],
-      'duration' => $item['duration'] ?? null,
+      'duration' => $this->durationToSeconds($item['tracklist'][0]['duration']) ?? null,
       'release' => $item['release']['title'] ?? null,
       'discogs_url' => $item['resource_url'] ?? null,
       'type' => 'track',
@@ -111,10 +118,22 @@ class DiscogsResultParser {
   private function parseAlbumDetails(array $item): array {
     return [
       'name' => $item['title'] ?? 'Unknown',
-      'year_of_release' => $item['released'] ?? null,
+      'year' => $item['year'] ?? null,
       'url' => $item['resource_url'] ?? null,
       'album_description' => $item['notes'] ?? null,
       'type' => 'album',
     ];
+  }
+
+  private function durationToSeconds($duration) {
+    $parts = explode(':', $duration);
+
+    if (count($parts) === 2 && is_numeric($parts[0]) && is_numeric($parts[1])) {
+      $minutes = (int)$parts[0];
+      $seconds = (int)$parts[1];
+      return $minutes * 60 + $seconds;
+    }
+
+    return 0;
   }
 }
