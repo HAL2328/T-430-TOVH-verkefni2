@@ -133,8 +133,7 @@ class DiscogsLookupService implements SearchServiceInterface
 
     $discogsType = match (strtolower($params['type'])) {
       'artist' => 'artists',
-      'album' => 'releases',
-      'song', 'track' => 'masters',
+      'album', 'song', 'track' => 'masters',
     };
 
 

@@ -90,17 +90,8 @@ function music_search_node_create(\Drupal\node\Entity\Node $node) {
     if (isset($data['title'])) {
       $node->setTitle($data['title']);
     }
-    if (isset($data['field_album_cover']) && $data['field_album_cover'] !== 'N/A') {
-      $node->set('field_album_cover', $data['field_album_cover']);
-    }
-    if (isset($data['field_album_genres']) && $data['field_album_genres'] !== 'N/A') {
-      $node->set('field_album_genres', $data['field_album_genres']);
-    }
-    if (isset($data['field_album_description']) && $data['field_album_description'] !== 'N/A') {
+    if (isset($data['field_description']) && $data['field_description'] !== 'N/A') {
       $node->set('field_album_description', $data['field_album_description']);
-    }
-    if (isset($data['field_album_publisher']) && $data['field_album_publisher'] !== 'N/A') {
-      $node->set('field_album_publisher', $data['field_album_publisher']);
     }
     if (isset($data['field_year_of_release']) && $data['field_year_of_release'] !== 'N/A') {
       $node->set('field_year_of_release', $data['field_year_of_release']);

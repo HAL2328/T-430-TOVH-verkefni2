@@ -28,41 +28,27 @@ class DiscogsResultParser {
     ]);
 
     foreach ($items as $item) {
-      // General fields for all types
       $id = $item['id'] ?? null;
-      if (strtolower($type) === 'track' && isset($item['master_id'])) {
+      if ($type === 'album' && $item['type'] !== 'master') {
+        continue;
+      }
+
+      if ($type === 'album' && isset($item['master_id'])) {
         $id = $item['master_id'];
       }
+
       $title = $item['title'] ?? 'Unknown';
       $image = $item['cover_image'] ?? '';
       $resourceUrl = $item['resource_url'] ?? null;
 
-      // Extract type-specific fields
-      $details = match ($type) {
-        'artist' => [
-          'artist_name' => $title,
-          'profile_url' => $resourceUrl,
-        ],
-        'album' => [
-          'release_title' => $title,
-          'year' => $item['year'] ?? null,
-        ],
-        'track' => [
-          'track_name' => $title,
-          'duration' => $item['duration'] ?? null,
-        ],
-        default => [],
-      };
 
       // Combine fields into a single result array
-      $formattedResults[] = array_merge([
+      $formattedResults[] = [
         'uri' => $id,
         'name' => $title,
         'image' => $image,
-        'artist' => $details['artist_name'] ?? 'Unknown',
-        'discogs_url' => $id ? "$baseDiscogsUrl/$type/$id" : null,
         'type' => $type,
-      ], $details);
+      ];
     }
 
     \Drupal::logger('discogs_parser')->debug('Parsed Results in parseResults: @formattedResults', [
@@ -125,10 +111,9 @@ class DiscogsResultParser {
   private function parseAlbumDetails(array $item): array {
     return [
       'name' => $item['title'] ?? 'Unknown',
-      'release_date' => $item['released'] ?? null,
-      'genres' => $item['genres'] ?? [],
-      'discogs_url' => $item['resource_url'] ?? null,
-      'body' => $item['notes'] ?? null,
+      'year_of_release' => $item['released'] ?? null,
+      'url' => $item['resource_url'] ?? null,
+      'album_description' => $item['notes'] ?? null,
       'type' => 'album',
     ];
   }
