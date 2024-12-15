@@ -31,7 +31,7 @@ Follow these steps to add the `files` folder to `web/sites/default/`:
 
 1. **Download**:
   - Get `Files.zip` from this link:
-    [Download Files.zip](https://github.com/FuadPoroshtica/drupal_assignment2/releases/download/media/Files.zip)
+    [Download Files.zip](https://we.tl/t-fAqHnJFeFW?utm_campaign=TRN_TDL_05&utm_source=sendgrid&utm_medium=email&trk=TRN_TDL_05)
 
 2. **Extract**:
   - Extract `Files.zip` to create a folder named `files`.
