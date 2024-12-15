@@ -1,4 +1,4 @@
-## Authors
+## Authors:
 
 - Fuad Poroshtica
 - Gissur Már Jónsson
@@ -18,12 +18,12 @@ Writer:
 - Username: the_writer
 - Password: 12345
 
-
-## Getting the files:
+## Installing and running the Application
+### Getting the files:
 
 ```bash
-git clone https://github.com/FuadPoroshtica/drupal_assignment2.git
-cd drupal_assignment2
+git clone https://github.com/HAL2328/T-430-TOVH-verkefni2
+cd T-430-TOVH-verkefni2
 ```
 ### Adding the Files Folder to `web/sites/default/`
 
@@ -47,33 +47,52 @@ Follow these steps to add the `files` folder to `web/sites/default/`:
           files/
     ```
 
-4. **Verify**:
-  - Check your Drupal site to confirm the `files` folder is accessible.
-
-5. **Back to run**:
-  - Go back to root of the drupal_assignment2
+4. **Back to run**:
+  - Go back to root of T-430-TOVH-verkefni2
 
 
 
-## Run for the first time:
+### Run for the first time:
 
-### First Step:
+#### First Step:
 ```bash
 ddev composer install
 ```
-### Second Step:
+#### Second Step:
 ```bash
-ddev import-db --file=database/db.sql.gz
+ddev import-db --file=database/database.sql.gz
 ```
-### Third Step:
+#### Third Step:
 ```bash
 ddev start
 ```
 
-## After that, perform the following when you run it in the future:
+### After that, perform the following when you run it in the future:
 ```bash
 ddev launch
 ```
+
+
+## Using the Music Search Module
+
+To use the music search module:
+- Log in as admin
+- Navigate to install extension
+- Install the Music Search module
+- Install the Spotify Lookup and Discogs Lookup services
+- Under *Configuration / Web services* you will now find *Discogs Lookup Settings* and *Spotify Lookup Settings*
+    - Use these to enter *Consumer Key* and *Consumer Secret* for Discogs and *ClientID* and *ClientSecret* for Spotify to generate a temporary access token
+    - You can also use relative URLs:
+ ```bash
+/admin/config/music-search/discogs
+/admin/config/music-search/spotify
+```
+- You can now use the *Music Search*, found under the *Content* menu
+    - Or the relative path:
+ ```bash
+/music-search/search
+```
+
 ___
 ## File Structure:
 
@@ -133,6 +152,36 @@ ___
 - `MusicSearchService.php`
 - `SearchServiceInterface.php`
 
+## Hugsanleg villa sem gæti komið upp:
+Stundum gerðist það að villa kom upp þegar reynt var að opna *node.add.**
+
+Þá reyndist
+ ```bash
+$entity->moderation_state
+```
+stundum vera *'null'*. Þetta var leyst með því að fara í skjal:
+ ```bash
+web/core/modules/content_moderation/src/EntityTypeInfo.php
+```
+
+Þar er lína 367:
+ ```bash
+$form['meta']['published']['#markup'] =
+    $this->moderationInfo->getWorkflowForEntity($entity)->
+        getTypePlugin()->getState($entity->moderation_state->value)->label();
+
+```
+Þessari línu breyttum við svona:
+
+ ```bash
+if (isset ($entity->moderation_state->value)) {
+  $form['meta']['published']['#markup'] =
+    $this->moderationInfo->getWorkflowForEntity($entity)->
+      getTypePlugin()->getState($entity->moderation_state->value)->label();
+}
+```
+
+og virtist það leysa málið.
 
 ---
 
