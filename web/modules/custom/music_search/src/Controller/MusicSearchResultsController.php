@@ -26,8 +26,6 @@ class MusicSearchResultsController extends ControllerBase {
    */
   protected MusicSearchService $musicSearchService;
 
-
-
   /**
    * Constructs a MusicSearchResultsController object.
    *
@@ -73,22 +71,32 @@ class MusicSearchResultsController extends ControllerBase {
       ];
     }
 
-    $results = $this->musicSearchService->search(
+    $search_results = $this->musicSearchService->search(
       explode(',', $params['providers']),
       $params['type'],
       $params['term']
     );
-
-    return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\MusicSearchSelectionForm::class, $results);
+    $seperated_results = [
+      'spotify' => [],
+      'discogs' => [],
+    ];
+    foreach ($search_results as $result) {
+      if ($seperated_results['provider'] == 'spotify') {
+        $seperated_results['spotify'][] = $result;
+      } elseif ($seperated_results['provider'] === 'discogs') {
+        $seperated_results['discogs'][] = $result;
+      }
+    }
+    return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\MusicSearchSelectionForm::class, $seperated_results);
   }
 
   /**
    * Handles the detail query for a selected item.
    */
-  public function detailQuery(): array {
-    // Fetches all queries from the current request.
+  public function detailQuery(): array
+  {
+    // Fetch queries.
     $params = \Drupal::request()->query->all();
-
 
     if (!$params) {
       return [
@@ -97,54 +105,35 @@ class MusicSearchResultsController extends ControllerBase {
     }
 
     $details = $this->musicSearchService->getDetails($params);
-    if (empty($details['spotify'])) {
+    \Drupal::logger('music_search.service')->debug('Detail query result passed to controller: @details', [
+        '@details' => print_r($details, TRUE),
+      ]
+    );
+
+    if (empty($details)) {
       return [
         '#markup' => $this->t('No details found for this item.'),
       ];
     }
-    $type = $details['spotify']['type'] ?? 'album';
-    \Drupal::logger('music_search')->notice('Details received: <pre>@details</pre>', ['@details' => print_r($details, TRUE)]);
 
-    $testurl = 'testibestie';
-    // Dummy data remember to delete this..
-    $discogs_album = [
-      'type' => 'album',
-      'name' => 'Example Album Title',
-      'image_url' => $testurl,
-      'label' => 'Example Music Label',
-      'release_date' => '2023-01-20',
-    ];
-    $discogs_artist = [
-      'type' => 'artist',
-      'name' => 'John Doe',
-      'image' => $testurl,
-      'url' => $testurl,
-    ];
-    $discogs_song = [
-      'type' => 'song',
-      'spotify_id' => '1234567890abcdef',
-      'duration' => '122321',
-      'name' => 'Example Song Title',
-    ];
-    $details['discogs'] = $discogs_album;
+    $type = $parms['type'] ?? 'artist';
 
-    return [
-      '#theme' => 'entity_field_selector',
-      '#entity_type' => $type,
-      '#details' => $details,
-      '#cache' => [
-        'max-age' => 0,
-      ],
-      '#attached' => [
-        'library' => [
-          'music_search/entity_field_selector_css',
-        ],
-      ],
-    ];
-    //return [
-    //  '#theme' => 'music_search_item_detail',
-    //  '#details' => $details['spotify'],
-    //];
+    // Build the form.
+    return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\EntityFieldSelectorForm::class, $type, $details);
+  }
+
+  public function createContent() {
+    // This method receives the chosen fields from the form submission.
+    $request = \Drupal::request();
+    $type = $request->query->get('type');
+    $fields = $request->query->get('fields');
+
+    // Store fields in session or directly redirect with query parameters.
+    $session = \Drupal::request()->getSession();
+    $session->set('music_search.data', $fields);
+
+    // Redirect to node/add/<type>
+    return $this->redirect('node.add', ['node_type' => $type]);
   }
 
   /*

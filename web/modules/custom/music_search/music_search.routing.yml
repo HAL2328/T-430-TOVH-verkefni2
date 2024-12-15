@@ -71,3 +71,11 @@ entity.field_selector_form:
   methods: [POST]
   requirements:
     _permission: 'access content'
+
+music_search.create_content:
+  path: '/music-search/create-content'
+  defaults:
+    _controller: '\Drupal\music_search\Controller\MusicSearchResultsController::createContent'
+    _title: 'Create Content'
+  requirements:
+    _permission: 'access content'

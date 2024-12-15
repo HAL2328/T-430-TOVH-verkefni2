@@ -47,13 +47,75 @@ function music_search_theme() {
   ];
 }
 
+
+
+
 /**
  * Implements hook_ENTITY_TYPE_create() for 'node'.
  */
-function music_search_node_create(Node $node) {
-  if ($node->getType() == 'artist') {
-    if (\Drupal::routeMatch()->getRouteName() == 'node.add') {
-      $node->setTitle('Steely Dan fans anonymous');
+function music_search_node_create(\Drupal\node\Entity\Node $node) {
+  $session = \Drupal::service('session');
+  $raw_data = $session->get('music_search.data', []);
+  $data = is_string($raw_data) ? json_decode($raw_data, TRUE) : $raw_data;
+
+  if (json_last_error() !== JSON_ERROR_NONE || empty($data)) {
+    return;
+  }
+
+
+  $type = $node->getType();
+
+  if ($type === 'artist') {
+    if (isset($data['title'])) {
+      $node->setTitle($data['title']);
+    }
+    if (isset($data['field_artist_picture']) && $data['field_artist_picture'] !== 'N/A') {
+      $node->set('field_artist_picture', $data['field_artist_picture']);
+    }
+    if (isset($data['field_date_of_birth']) && $data['field_date_of_birth'] !== 'N/A') {
+      $node->set('field_date_of_birth', $data['field_date_of_birth']);
+    }
+    if (isset($data['field_date_of_death']) && $data['field_date_of_death'] !== 'N/A') {
+      $node->set('field_date_of_death', $data['field_date_of_death']);
+    }
+    if (isset($data['field_website']) && $data['field_website'] !== 'N/A') {
+      $node->set('field_website', $data['field_website']);
+    }
+  }
+
+  if ($type === 'album') {
+    if (isset($data['title'])) {
+      $node->setTitle($data['title']);
+    }
+    if (isset($data['field_album_cover']) && $data['field_album_cover'] !== 'N/A') {
+      $node->set('field_album_cover', $data['field_album_cover']);
+    }
+    if (isset($data['field_album_genres']) && $data['field_album_genres'] !== 'N/A') {
+      $node->set('field_album_genres', $data['field_album_genres']);
+    }
+    if (isset($data['field_album_description']) && $data['field_album_description'] !== 'N/A') {
+      $node->set('field_album_description', $data['field_album_description']);
+    }
+    if (isset($data['field_album_publisher']) && $data['field_album_publisher'] !== 'N/A') {
+      $node->set('field_album_publisher', $data['field_album_publisher']);
+    }
+    if (isset($data['field_year_of_release']) && $data['field_year_of_release'] !== 'N/A') {
+      $node->set('field_year_of_release', $data['field_year_of_release']);
+    }
+  }
+
+  if ($type === 'song') {
+    if (isset($data['title'])) {
+      $node->setTitle($data['title']);
+    }
+    if (isset($data['field_duration']) && $data['field_duration'] !== 'N/A') {
+      $node->set('field_duration', $data['field_duration']);
+    }
+    if (isset($data['field_song_album']) && $data['field_song_album'] !== 'N/A') {
+      $node->set('field_song_album', $data['field_song_album']);
+    }
+    if (isset($data['field_song_artist']) && $data['field_song_artist'] !== 'N/A') {
+      $node->set('field_song_artist', $data['field_song_artist']);
     }
   }
 }

@@ -44,7 +44,9 @@ class MusicSearchSelectionForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state, array $results = []) {
     $options = [];
-
+    \Drupal::logger('music_search_selection_form')->debug('The provided data for selection form: @results', [
+        '@results' => print_r($results, TRUE),
+    ]);
     // Build an array of options for the radio buttons.
     foreach ($results as $provider => $items) {
       foreach ($items as $item) {
@@ -57,14 +59,14 @@ class MusicSearchSelectionForm extends FormBase {
 
         // Prepare the label with an optional image.
         $label_text = $item['name'] . ' (' . $item['type'] . ')';
+        if (!empty($item['artist'])) {
+            $label_text .= ' - Artist: ' . $item['artist'];
+        }
         $image_html = '';
         if (!empty($item['image'])) {
-          // Add a small square image (e.g., 50x50).
-          // Adjust width/height as desired.
           $image_html = '<img src="' . $item['image'] . '" alt="" width="50" height="50" style="vertical-align: middle; margin-right: 5px;">';
         }
 
-        // Combine the image and label into safe markup.
         $options[$encoded] = Markup::create($image_html . $label_text);
       }
     }
@@ -105,6 +107,9 @@ class MusicSearchSelectionForm extends FormBase {
 
     if (!empty($selected['provider']) && !empty($selected['type']) && !empty($selected['uri'])) {
       // Redirect to the detail query route with these parameters.
+      \Drupal::logger('search_selection')->debug('The selected object: @selected', [
+          '@selected' => print_r($selected, true),
+      ]);
       $form_state->setRedirect('music_search.detail_query', [
         'provider' => $selected['provider'],
         'type' => $selected['type'],

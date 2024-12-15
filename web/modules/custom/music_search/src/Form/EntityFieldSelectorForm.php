@@ -1,148 +1,170 @@
 <?php
 
-
 namespace Drupal\music_search\Form;
 
-use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 
-/**
- * Form to choose fields to save for an entity from Discogs or Spotify.
- */
-class EntityFieldSelectorForm extends FormBase
-{
+class EntityFieldSelectorForm extends FormBase {
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId(): string
-  {
-    return 'entity_field_selector_with_sources_form';
+  protected $type;
+  protected $details;
+
+  public function __construct($type, $details) {
+    $this->type = $type;
+    $this->details = $details;
   }
 
-  /**
-   * Builds the form for selecting fields to save.
-   */
-  public function buildForm(array $form, FormStateInterface $form_state): array
-  {
-    // Example combined details from Discogs and Spotify for a single entity.
-    $entity_details = $form_state->get('entity_details') ?: $this->getDefaultEntityDetails();
+  public static function create($container) {
+    // Normally, you'd inject services here if needed. For simplicity, omit it.
+    return new static(
+      $container->get('request_stack')->getCurrentRequest()->get('type'),
+      $container->get('request_stack')->getCurrentRequest()->get('details')
+    );
+  }
 
-    $form['entity_details'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Entity Details'),
-      '#open' => TRUE,
-      '#description' => $this->t('Choose the source (Discogs or Spotify) for each detail field.'),
-    ];
+  public function getFormId() {
+    return 'entity_field_selector_form';
+  }
 
-    // Build form for each field.
-    foreach ($entity_details as $field => $values) {
-      // Add a fieldset for each field.
-      $form['entity_details'][$field] = [
-        '#type' => 'fieldset',
-        '#title' => ucfirst(str_replace('_', ' ', $field)),
-      ];
+  public function buildForm(array $form, FormStateInterface $form_state, $type = NULL, $details = NULL) {
+    // If parameters passed in directly.
+    $type = $type ?: $this->type;
+    $details = $details ?: $this->details;
 
-      // Show both Discogs and Spotify values as options for this field.
-      $form['entity_details'][$field]['discogs'] = [
-        '#type' => 'item',
-        '#title' => $this->t('Discogs Value'),
-        '#markup' => is_array($values['discogs']) ? implode(', ', $values['discogs']) : $values['discogs'],
-      ];
-      $form['entity_details'][$field]['spotify'] = [
-        '#type' => 'item',
-        '#title' => $this->t('Spotify Value'),
-        '#markup' => is_array($values['spotify']) ? implode(', ', $values['spotify']) : $values['spotify'],
-      ];
-
-      // Radio buttons to choose between Discogs and Spotify.
-      $form['entity_details'][$field]['source'] = [
-        '#type' => 'radios',
-        '#title' => $this->t('Select Source'),
-        '#options' => [
-          'discogs' => $this->t('Use Discogs Value'),
-          'spotify' => $this->t('Use Spotify Value'),
-        ],
-        '#required' => TRUE,
-        '#default_value' => 'spotify', // Default to Spotify, for example.
+    // Validate the details structure.
+    if (!is_array($details)) {
+      return [
+        '#markup' => $this->t('Invalid details provided for this form.'),
       ];
     }
 
-    // Add a submit button.
+    // Determine which fields to display based on type.
+    $fields_map = [
+      'artist' => [
+        'title' => 'Name',
+        'field_artist_picture' => 'Image URL',
+        'field_date_of_birth' => 'Date of Birth',
+        'field_date_of_death' => 'Date of Death',
+        'field_website' => 'Website',
+      ],
+      'album' => [
+        'title' => 'Name',
+        'field_album_cover' => 'Cover Photo',
+        'field_album_genres' => 'Genres',
+        'field_artist' => 'Artist',
+        'field_album_description' => 'Description',
+        'field_album_publisher' => 'Publisher',
+        'field_album_songs' => 'Songs',
+        'field_year_of_release' => 'Year of Release',
+      ],
+      'song' => [
+        'title' => 'Name',
+        'field_duration' => 'Duration',
+        'field_song_album' => 'Album',
+        'field_song_artist' => 'Artist',
+      ],
+    ];
+
+    $fields = $fields_map[$type] ?? [];
+
+    if (empty($fields)) {
+      $form['no_fields'] = [
+        '#markup' => $this->t('No fields available for this type.'),
+      ];
+      return $form;
+    }
+
+    // Create the table header dynamically based on available services.
+    $services = array_keys($details); // e.g., ['spotify', 'discogs', 'apple_music']
+    $header = array_merge([$this->t('Field')], array_map([$this, 't'], $services), [$this->t('Use This')]);
+
+    $form['fields_table'] = [
+      '#type' => 'table',
+      '#header' => $header,
+    ];
+
+    // Loop through each field and create a row in the table.
+    foreach ($fields as $machine_name => $label) {
+      $row = [
+        'field_label' => ['#plain_text' => $label],
+      ];
+
+      $radio_options = [];
+
+      // Add a column for each service dynamically.
+      foreach ($services as $service) {
+        $value = $details[$service][$this->normalizeKey($machine_name)] ?? 'N/A';
+        $row[$service] = ['#markup' => Markup::create($value)];
+        $radio_options[$value] = ucfirst($service);
+      }
+
+      // Add the "None" option.
+      $radio_options[''] = $this->t('None');
+
+      // Add the radio button column.
+      $row['use_this'] = [
+        '#type' => 'radios',
+        '#options' => $radio_options,
+        '#default_value' => array_key_first($radio_options), // Default to the first service's value.
+      ];
+
+      $form['fields_table'][$machine_name] = $row;
+    }
+
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Save Selected Fields'),
+      '#value' => $this->t('Create Content'),
+    ];
+
+    // Pass type and details along if needed.
+    $form['type'] = [
+      '#type' => 'value',
+      '#value' => $type,
     ];
 
     return $form;
   }
 
-  /**
-   * Provide a default set of entity details for example purposes.
-   *
-   * Simulates a single entity's data from both Discogs and Spotify.
-   */
-  protected function getDefaultEntityDetails(): array
-  {
-    return [
-      'name' => [
-        'discogs' => 'The Rolling Stones (Discogs)',
-        'spotify' => 'The Rolling Stones (Spotify)',
-      ],
-      'genres' => [
-        'discogs' => ['Rock', 'Blues'],
-        'spotify' => ['Blues Rock', 'Classic Rock'],
-      ],
-      'popularity' => [
-        'discogs' => '85',
-        'spotify' => '87',
-      ],
-      'followers' => [
-        'discogs' => '10,123,456',
-        'spotify' => '12,345,678',
-      ],
-      'image_url' => [
-        'discogs' => 'https://discogs.com/rolling_stones_image.png',
-        'spotify' => 'https://spotify.com/rolling_stones_image.png',
-      ],
-    ];
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $type = $form_state->getValue('type');
+    $selected_fields = [];
+
+    foreach ($form['fields_table'] as $machine_name => $row) {
+      if (is_array($row) && isset($row['use_this'])) {
+        $chosen = $form_state->getValue(['fields_table', $machine_name, 'use_this']);
+        $selected_fields[$machine_name] = $chosen;
+      }
+    }
+
+    // Redirect to createContent route with chosen fields.
+    $form_state->setRedirect('music_search.create_content', [
+      'type' => $type,
+    ], [
+      'query' => ['fields' => json_encode($selected_fields)],
+    ]);
   }
 
-  /**
-   * Handles form submission.
-   * @throws EntityStorageException
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state): void
-  {
-    // Get all selected values from the form.
-    $selected_fields = $form_state->getValues()['entity_details'];
+  protected function normalizeKey($key) {
+    // Maps keys from machine names to the keys used in the details array.
+    $key_mappings = [
+      'title' => 'name',
+      'field_year_of_release' => 'release_date',
+      'field_album_cover' => 'image_url',
+      'field_artist_picture' => 'image',
+      'field_song_album' => 'album',
+      'field_song_artist' => 'artist',
+      'field_album_description' => 'description',
+      'field_album_publisher' => 'publisher',
+      'field_album_songs' => 'songs',
+      'field_album_genres' => 'genres',
+      'field_date_of_birth' => 'date_of_birth',
+      'field_date_of_death' => 'date_of_death',
+      'field_website' => 'website',
+      'field_duration' => 'duration',
+    ];
 
-    // Prepare data to save.
-    // Use the chosen source for each field.
-    $data_to_save = array_map(function ($choices) {
-      return $choices['source'] == 'discogs'
-        ? $choices['discogs']
-        : $choices['spotify'];
-    }, $selected_fields);
-
-
-    $entity_type = 'artist';
-
-    // Save to the appropriate entity type.
-    try {
-      $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
-    } catch (InvalidPluginDefinitionException|PluginNotFoundException $e) {
-
-    }
-    $entity = $storage->create($data_to_save);
-    $entity->save();
-
-
-    $this->messenger()->addMessage($this->t('The %type entity was successfully saved with the selected fields.', [
-      '%type' => ucfirst($entity_type),
-    ]));
+    return $key_mappings[$key] ?? $key;
   }
 }
