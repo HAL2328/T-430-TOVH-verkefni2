@@ -50,7 +50,6 @@ class SpotifyResultParser {
         'spotify_url' => $id ? $baseSpotifyUrl . '/' . $type . '/' . $id : null,
       ];
     }
-
     return $formattedResults;
   }
 

@@ -51,13 +51,23 @@ class MusicSearchService {
 
   public function getDetails(array $params): array {
     $results = [];
+    \Drupal::logger('music_search.params')->debug('ItemsArray: @params',[
+      '@params' => print_r($params, TRUE)
+    ]);
+    foreach ($params as $param) {
+      if (isset($this->searchServices[$param['provider']])) {
+        \Drupal::logger('music_search.items_array')->debug('ItemsArray: @items',[
+          '@param' => print_r($param, TRUE)
+        ]);
+        $details = $this->searchServices[$param['provider']]->getDetails($param);
 
-    if (isset($this->searchServices[$params['provider']])) {
-      $results[$params['provider']] = $this->searchServices[$params['provider']]->getDetails($params);
-      \Drupal::logger('music_search.service')->debug('Detail query result in music_search.service: @results', [
-        '@results' => print_r($results, TRUE),
-        ]
-      );
+        $results[$param['provider']] = $details;
+
+        // Log the result for debugging.
+      }
+      \Drupal::logger('music_search.detail_query')->debug('Detail query: @results',[
+        '@results' => print_r($results, TRUE)
+        ]);
     }
 
     return $results;
