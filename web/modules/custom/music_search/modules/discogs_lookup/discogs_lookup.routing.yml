@@ -1,5 +1,5 @@
-Discogs_lookup.settings:
-  path: '/admin/config/music-search/Discogs'
+discogs_lookup.settings:
+  path: '/admin/config/music-search/discogs'
   defaults:
     _form: '\Drupal\discogs_lookup\Form\DiscogsSettingsForm'
     _title: 'Discogs Lookup Settings'
