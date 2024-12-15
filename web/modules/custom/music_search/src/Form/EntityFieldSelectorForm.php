@@ -30,8 +30,14 @@ class EntityFieldSelectorForm extends FormBase {
 
   public function buildForm(array $form, FormStateInterface $form_state, $type = NULL, $details = NULL): array
   {
-    // If parameters are passed directly, otherwise use defaults.
-    $type = $type ?: $this->type;
+    // TODO: Refactor to pass type as root key (or some other solution that works better).
+    foreach($details as $key => $detail) {
+      if (isset ($detail['type'])) {
+        $type = $detail['type'];
+        break;
+      }
+    }
+
     $details = $details ?: $this->details;
 
     // Validate the details structure.
@@ -45,12 +51,18 @@ class EntityFieldSelectorForm extends FormBase {
     $fields_map = [
       'artist' => [
         'title' => 'Name',
-        'field_artist_picture' => 'Image URL',
         'field_website' => 'Website',
         'body' => 'body',
-        'field_date_of_birth' => 'date_of_birth',
-        'field_date_of_death' => 'date_of_death',
       ],
+      'album' => [
+        'title' => 'Title',
+        'field_description' => 'Description',
+        'field_year_of_release' => 'Year of release',
+      ],
+      'song' => [
+        'title' => 'Title',
+        'field_duration' => 'Duration',
+      ]
     ];
 
     $fields = $fields_map[$type] ?? [];
@@ -148,6 +160,9 @@ class EntityFieldSelectorForm extends FormBase {
       'body' => 'body',
       'field_date_of_birth' => 'date_of_birth',
       'field_date_of_death' => 'date_of_death',
+      'field_description' => 'album_description',
+      'field_year_of_release' => 'year',
+      'field_duration' => 'duration',
     ];
 
     return $key_mappings[$key] ?? $key;
