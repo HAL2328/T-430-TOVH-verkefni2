@@ -81,6 +81,9 @@ function music_search_node_create(\Drupal\node\Entity\Node $node) {
     if (isset($data['field_website']) && $data['field_website'] !== 'N/A') {
       $node->set('field_website', $data['field_website']);
     }
+    if (isset($data['body']) && $data['body'] !== 'N/A') {
+      $node->set('body', $data['body']);
+    }
   }
 
   if ($type === 'album') {

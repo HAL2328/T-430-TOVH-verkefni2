@@ -99,9 +99,8 @@ class DiscogsResultParser {
     return [
       'name' => $item['name'] ?? 'Unknown',
       'profile' => $item['profile'] ?? null,
-      'genres' => $item['genres'] ?? [],
-      'images' => $item['images'][0]['uri'] ?? null,
-      'discogs_url' => $item['resource_url'] ?? null,
+      'website' => $item['urls'][0] ?? null,
+      'body' => $item['profile'] ?? null,
       'type' => 'artist',
     ];
   }

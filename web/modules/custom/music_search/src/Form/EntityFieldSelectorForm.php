@@ -47,8 +47,10 @@ class EntityFieldSelectorForm extends FormBase {
         'title' => 'Name',
         'field_artist_picture' => 'Image URL',
         'field_website' => 'Website',
+        'body' => 'body',
+        'field_date_of_birth' => 'date_of_birth',
+        'field_date_of_death' => 'date_of_death',
       ],
-      // Add other types like 'album' or 'song' if needed.
     ];
 
     $fields = $fields_map[$type] ?? [];
@@ -142,9 +144,10 @@ class EntityFieldSelectorForm extends FormBase {
     // Maps keys from machine names to the keys used in the details array.
     $key_mappings = [
       'title' => 'name',
-      'field_artist_picture' => 'image',
       'field_website' => 'website',
-      // Add more field mappings as needed.
+      'body' => 'body',
+      'field_date_of_birth' => 'date_of_birth',
+      'field_date_of_death' => 'date_of_death',
     ];
 
     return $key_mappings[$key] ?? $key;
