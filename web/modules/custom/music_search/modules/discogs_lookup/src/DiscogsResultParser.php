@@ -1,12 +1,10 @@
 <?php
-
 namespace Drupal\discogs_lookup;
 
 /**
  * Parses Discogs API results into a structured array.
  */
 class DiscogsResultParser {
-
   /**
    * Parses Discogs API results.
    *

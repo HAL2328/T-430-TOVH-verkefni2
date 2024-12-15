@@ -26,8 +26,6 @@ class MusicSearchResultsController extends ControllerBase {
    */
   protected MusicSearchService $musicSearchService;
 
-
-
   /**
    * Constructs a MusicSearchResultsController object.
    *
@@ -73,19 +71,30 @@ class MusicSearchResultsController extends ControllerBase {
       ];
     }
 
-    $results = $this->musicSearchService->search(
+    $search_results = $this->musicSearchService->search(
       explode(',', $params['providers']),
       $params['type'],
       $params['term']
     );
-
-    return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\MusicSearchSelectionForm::class, $results);
+    $seperated_results = [
+      'spotify' => [],
+      'discogs' => [],
+    ];
+    foreach ($search_results as $result) {
+      if ($seperated_results['provider'] == 'spotify') {
+        $seperated_results['spotify'][] = $result;
+      } elseif ($seperated_results['provider'] === 'discogs') {
+        $seperated_results['discogs'][] = $result;
+      }
+    }
+    return \Drupal::formBuilder()->getForm(\Drupal\music_search\Form\MusicSearchSelectionForm::class, $seperated_results);
   }
 
   /**
    * Handles the detail query for a selected item.
    */
-  public function detailQuery() {
+  public function detailQuery(): array
+  {
     // Fetch queries.
     $params = \Drupal::request()->query->all();
 

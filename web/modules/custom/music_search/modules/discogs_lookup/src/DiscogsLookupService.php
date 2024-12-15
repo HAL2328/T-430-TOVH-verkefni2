@@ -6,6 +6,7 @@ use Drupal\music_search\SearchServiceInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use Drupal\discogs_lookup\DiscogsResultParser;
 
 
 /**
