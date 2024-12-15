@@ -30,10 +30,5 @@ services:
     class: Drupal\Core\Logger\LoggerChannel
     arguments: ['music_search']
 
-  music_search.twig_extension:
-    class: Drupal\music_search\Twig\SessionTwigExtension
-    arguments: ['@music_search.results_controller']
-    tags:
-      - { name: twig.extension }
 
 
