@@ -183,6 +183,11 @@ if (isset ($entity->moderation_state->value)) {
 
 og virtist það leysa málið.
 
+## Aðrir punktar
+- Sem stendur ræður módúlan aðeins við að setja inn field sem eru einfaldar týpur (Date, Title, Duration o.sv.frv.)
+- Ef við hefðum meiri tíma myndum við vilja útvíkka virknina þannig að módúlan réði við að skapa þau entity sem þarf
+til að hægt væri að setja inn sjálfkrafa myndir, lagalista, tegund tónlistar o.sv.frv.
+
 ---
 
 
