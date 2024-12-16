@@ -108,7 +108,7 @@ class DiscogsResultParser {
       'duration' => $this->durationToSeconds($item['tracklist'][0]['duration']) ?? null,
       'release' => $item['release']['title'] ?? null,
       'discogs_url' => $item['resource_url'] ?? null,
-      'type' => 'track',
+      'type' => 'song',
     ];
   }
 
